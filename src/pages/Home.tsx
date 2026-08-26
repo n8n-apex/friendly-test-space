@@ -36,7 +36,7 @@ export function Home() {
   const [phase, setPhase] = useState<Phase>("form");
   const [agentName, setAgentName] = useState("");
   const [nameTouched, setNameTouched] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryInput, setCategoryInput] = useState("");
   const [sourceType, setSourceType] = useState<SourceType>("google_doc");
   const [googleDocLink, setGoogleDocLink] = useState("");
   const [file, setFile] = useState<File | null>(null);
