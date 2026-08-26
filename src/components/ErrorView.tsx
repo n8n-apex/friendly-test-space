@@ -4,7 +4,7 @@ export function ErrorView({
   message,
   onRetry,
 }: {
-  message?: string;
+  message?: string | undefined;
   onRetry: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);

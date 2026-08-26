@@ -4,8 +4,8 @@ export type CreateFormAssistantPayload = {
   agentName: string;
   categories: string[];
   sourceType: SourceType;
-  googleDocLink?: string;
-  file?: File;
+  googleDocLink?: string | undefined;
+  file?: File | undefined;
 };
 
 export type WorkflowResult = {
