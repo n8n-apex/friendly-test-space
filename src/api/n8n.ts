@@ -48,7 +48,15 @@ export async function createFormAssistant(
     throw new Error(`Workflow request failed (${response.status})`);
   }
 
-  const data = (await response.json()) as Partial<WorkflowResult>;
+  // The n8n Form trigger may reply with HTML instead of JSON.
+  const text = await response.text();
+  let data: Partial<WorkflowResult> = {};
+  try {
+    data = JSON.parse(text) as Partial<WorkflowResult>;
+  } catch {
+    data = {};
+  }
+
   return {
     success: data.success ?? true,
     agentName: data.agentName ?? payload.agentName,
