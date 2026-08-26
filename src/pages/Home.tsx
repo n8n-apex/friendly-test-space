@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { GlassCard, FieldLabel } from "@/components/GlassCard";
 import { SourceSelector } from "@/components/SourceSelector";
-import { CategorySelector } from "@/components/CategorySelector";
 import { FileDropzone } from "@/components/FileDropzone";
 import { ProgressView } from "@/components/ProgressView";
 import { ResultView } from "@/components/ResultView";
 import { ErrorView } from "@/components/ErrorView";
 import { createFormAssistant } from "@/api/n8n";
-import { defaultCategories } from "@/config/learningSuite";
 import {
   progressStepLabels,
   type ProgressStep,
