@@ -2,7 +2,7 @@ export type SourceType = "google_doc" | "file";
 
 export type CreateFormAssistantPayload = {
   agentName: string;
-  categories: string[];
+  categories: string;
   sourceType: SourceType;
   googleDocLink?: string | undefined;
   file?: File | undefined;
