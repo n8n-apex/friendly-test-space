@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { GlassCard, FieldLabel } from "@/components/GlassCard";
 import { SourceSelector } from "@/components/SourceSelector";
-import { CategorySelector } from "@/components/CategorySelector";
 import { FileDropzone } from "@/components/FileDropzone";
 import { ProgressView } from "@/components/ProgressView";
 import { ResultView } from "@/components/ResultView";
 import { ErrorView } from "@/components/ErrorView";
 import { createFormAssistant } from "@/api/n8n";
-import { defaultCategories } from "@/config/learningSuite";
 import {
   progressStepLabels,
   type ProgressStep,
@@ -38,13 +36,22 @@ export function Home() {
   const [phase, setPhase] = useState<Phase>("form");
   const [agentName, setAgentName] = useState("");
   const [nameTouched, setNameTouched] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryInput, setCategoryInput] = useState("");
   const [sourceType, setSourceType] = useState<SourceType>("google_doc");
   const [googleDocLink, setGoogleDocLink] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
+
+  const categories = useMemo(
+    () =>
+      categoryInput
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    [categoryInput],
+  );
 
   const canSubmit = useMemo(() => {
     const hasSource =
@@ -127,12 +134,17 @@ export function Home() {
               </div>
 
               <div>
-                <FieldLabel>Categories</FieldLabel>
-                <CategorySelector
-                  options={defaultCategories}
-                  selected={categories}
-                  onChange={setCategories}
+                <FieldLabel htmlFor="categories">Categories</FieldLabel>
+                <input
+                  id="categories"
+                  value={categoryInput}
+                  onChange={(event) => setCategoryInput(event.target.value)}
+                  placeholder="Rohdaten, Copy-Doppel, Verdichtung, Outputs"
+                  className="glass-input w-full rounded-2xl px-4 py-3 text-sm placeholder:text-foreground/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                 />
+                <p className="mt-2 text-xs text-foreground/40">
+                  Separate categories with commas.
+                </p>
               </div>
 
               <div>

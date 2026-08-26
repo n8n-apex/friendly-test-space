@@ -12,8 +12,9 @@ export const learningSuiteConfig = {
 } as const;
 
 export const n8nConfig = {
-  /** Set to the real n8n webhook URL to leave mock mode. */
-  createFormAssistantWebhook: "",
+  /** n8n form URL that receives the Create Form Assistant submission. */
+  createFormAssistantWebhook:
+    "https://apexcnsltng.app.n8n.cloud/form/ecdf6bad-28b0-43df-8920-9f95507b1358",
   /** Mock mode is active while no webhook URL is configured. */
   get mockMode() {
     return this.createFormAssistantWebhook.length === 0;
