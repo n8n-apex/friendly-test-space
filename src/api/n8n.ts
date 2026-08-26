@@ -29,13 +29,19 @@ export async function createFormAssistant(
 ): Promise<WorkflowResult> {
   if (n8nConfig.mockMode) return mockCreateFormAssistant(payload);
 
+  // The n8n Form trigger expects positional field names (field-0 … field-5),
+  // in the order the fields are defined in the form.
   const form = new FormData();
-  form.append("Google Doc Link", payload.googleDocLink ?? "");
-  form.append("Request URL", learningSuiteConfig.graphqlUrl);
-  form.append("API Key", learningSuiteConfig.apiKey);
-  form.append("Categories", payload.categories);
-  form.append("AI Agent Name", payload.agentName);
-  if (payload.file) form.append("File", payload.file, payload.file.name);
+  form.append("field-0", payload.googleDocLink ?? "");
+  form.append("field-1", learningSuiteConfig.graphqlUrl);
+  form.append("field-2", learningSuiteConfig.apiKey);
+  form.append("field-3", payload.categories);
+  form.append("field-4", payload.agentName);
+  if (payload.file) {
+    form.append("field-5", payload.file, payload.file.name);
+  } else {
+    form.append("field-5", "");
+  }
   form.append("submittedAt", toLocalIsoString(new Date()));
   form.append("formMode", "production");
 
