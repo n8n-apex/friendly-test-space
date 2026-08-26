@@ -134,12 +134,17 @@ export function Home() {
               </div>
 
               <div>
-                <FieldLabel>Categories</FieldLabel>
-                <CategorySelector
-                  options={defaultCategories}
-                  selected={categories}
-                  onChange={setCategories}
+                <FieldLabel htmlFor="categories">Categories</FieldLabel>
+                <input
+                  id="categories"
+                  value={categoryInput}
+                  onChange={(event) => setCategoryInput(event.target.value)}
+                  placeholder="Rohdaten, Copy-Doppel, Verdichtung, Outputs"
+                  className="glass-input w-full rounded-2xl px-4 py-3 text-sm placeholder:text-foreground/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                 />
+                <p className="mt-2 text-xs text-foreground/40">
+                  Separate categories with commas.
+                </p>
               </div>
 
               <div>
