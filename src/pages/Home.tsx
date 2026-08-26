@@ -44,6 +44,15 @@ export function Home() {
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
+  const categories = useMemo(
+    () =>
+      categoryInput
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    [categoryInput],
+  );
+
   const canSubmit = useMemo(() => {
     const hasSource =
       sourceType === "google_doc" ? isValidUrl(googleDocLink) : file !== null;
