@@ -74,7 +74,7 @@ export function Home() {
     try {
       const workflowResult = await createFormAssistant({
         agentName: agentName.trim(),
-        categories,
+        categories: categoryInput.trim(),
         sourceType,
         ...(sourceType === "google_doc"
           ? { googleDocLink: googleDocLink.trim() }

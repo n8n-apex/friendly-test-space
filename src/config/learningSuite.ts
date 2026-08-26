@@ -1,9 +1,8 @@
 /**
- * TEMPORARY development configuration.
+ * LearningSuite configuration.
  *
- * These values exist in ONE place only so they can be replaced later by
- * secure backend configuration. The frontend never renders, logs or sends
- * the API key — n8n remains responsible for using the credential.
+ * These values are sent to the n8n workflow so it can authenticate with
+ * LearningSuite on behalf of the user. Keep them out of UI logs.
  */
 export const learningSuiteConfig = {
   graphqlUrl: "https://api.learningsuite.io/clki3mtu62ua7er013378h1o8/graphql",
