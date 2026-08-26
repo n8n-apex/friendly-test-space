@@ -20,44 +20,28 @@ function toLocalIsoString(date: Date): string {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}${sign}${offsetHours}:${offsetMinutes}`;
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.readAsDataURL(file);
-  });
-}
-
 /**
- * Sends the operation payload to n8n as a JSON array matching the
- * expected n8n form structure. The LearningSuite API key and GraphQL
- * URL are included so the workflow can authenticate and mutate data.
+ * Sends the operation payload to the n8n Form trigger as
+ * multipart/form-data, which the Form node requires.
  */
 export async function createFormAssistant(
   payload: CreateFormAssistantPayload,
 ): Promise<WorkflowResult> {
   if (n8nConfig.mockMode) return mockCreateFormAssistant(payload);
 
-  const fileValue = payload.file ? await fileToBase64(payload.file) : null;
-
-  const body = JSON.stringify([
-    {
-      "Google Doc Link": payload.googleDocLink ?? null,
-      "Request URL": learningSuiteConfig.graphqlUrl,
-      "API Key": learningSuiteConfig.apiKey,
-      Categories: payload.categories,
-      "AI Agent Name": payload.agentName,
-      File: fileValue,
-      submittedAt: toLocalIsoString(new Date()),
-      formMode: "production",
-    },
-  ]);
+  const form = new FormData();
+  form.append("Google Doc Link", payload.googleDocLink ?? "");
+  form.append("Request URL", learningSuiteConfig.graphqlUrl);
+  form.append("API Key", learningSuiteConfig.apiKey);
+  form.append("Categories", payload.categories);
+  form.append("AI Agent Name", payload.agentName);
+  if (payload.file) form.append("File", payload.file, payload.file.name);
+  form.append("submittedAt", toLocalIsoString(new Date()));
+  form.append("formMode", "production");
 
   const response = await fetch(n8nConfig.createFormAssistantWebhook, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
+    body: form,
   });
 
   if (!response.ok) {
