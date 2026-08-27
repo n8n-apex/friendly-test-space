@@ -55,7 +55,7 @@ export function Home() {
 
   const canSubmit = useMemo(() => {
     const hasSource =
-      sourceType === "google_doc" ? isValidUrl(googleDocLink) : file !== null;
+      sourceType === "google_doc" ? isValidGoogleDocUrl(googleDocLink) : file !== null;
     return agentName.trim().length > 0 && categories.length > 0 && hasSource;
   }, [agentName, categories, sourceType, googleDocLink, file]);
 
@@ -164,9 +164,9 @@ export function Home() {
                     placeholder="https://docs.google.com/..."
                     className="glass-input w-full rounded-2xl px-4 py-3 text-sm placeholder:text-foreground/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                   />
-                  {googleDocLink.length > 0 && !isValidUrl(googleDocLink) && (
+                  {googleDocLink.length > 0 && !isValidGoogleDocUrl(googleDocLink) && (
                     <p className="mt-2 text-xs text-destructive/80">
-                      This doesn&apos;t look like a valid link.
+                      Please enter a valid Google Doc link starting with https://docs.google.com/.
                     </p>
                   )}
                 </div>
