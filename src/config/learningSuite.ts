@@ -5,9 +5,9 @@
  * LearningSuite on behalf of the user. Keep them out of UI logs.
  */
 export const learningSuiteConfig = {
-  graphqlUrl: "https://api.learningsuite.io/clki3mtu62ua7er013378h1o8/graphql",
+  graphqlUrl: "https://api.learningsuite.io/cms3mhofl0zjvdj0106ggrfav/graphql",
   apiKey:
-    "Y2xraTNtdHU2MnVhN2VyMDEzMzc4aDFvODoyMThjMGM4MzRkOGFlODJjODYyOTVlYjhhOGZkNTNiNzVjZmNhNzFkMDJkNTkwYmM3NmIyNDc1NWQ2MzZlNjYz",
+    "Y21zM21ob2ZsMHpqdmRqMDEwNmdncmZhdjoyYjk4ZjUwMGFlYjc1YzlkNjNiOWJiNDFkNDU4Y2YzZDRmZDViMjM2MTEzMGU2NGIwNDdlZDMzMTA4YzY3OTFh",
 } as const;
 
 export const n8nConfig = {
