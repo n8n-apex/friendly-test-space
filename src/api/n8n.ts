@@ -1,4 +1,4 @@
-import { learningSuiteConfig, n8nConfig } from "@/config/learningSuite";
+import { n8nConfig } from "@/config/learningSuite";
 import type { CreateFormAssistantPayload, WorkflowResult } from "@/types/workflow";
 import { mockCreateFormAssistant } from "./mock";
 
@@ -33,14 +33,12 @@ export async function createFormAssistant(
   // in the order the fields are defined in the form.
   const form = new FormData();
   form.append("field-0", payload.googleDocLink ?? "");
-  form.append("field-1", learningSuiteConfig.graphqlUrl);
-  form.append("field-2", learningSuiteConfig.apiKey);
-  form.append("field-3", payload.categories);
-  form.append("field-4", payload.agentName);
+  form.append("field-1", payload.categories);
+  form.append("field-2", payload.agentName);
   if (payload.file) {
-    form.append("field-5", payload.file, payload.file.name);
+    form.append("field-3", payload.file, payload.file.name);
   } else {
-    form.append("field-5", "");
+    form.append("field-3", "");
   }
   form.append("submittedAt", toLocalIsoString(new Date()));
   form.append("formMode", "production");
