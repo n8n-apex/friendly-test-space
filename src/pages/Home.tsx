@@ -23,10 +23,10 @@ function buildSteps(activeIndex: number): ProgressStep[] {
   }));
 }
 
-function isValidUrl(value: string) {
+function isValidGoogleDocUrl(value: string) {
   try {
     const url = new URL(value.trim());
-    return url.protocol === "http:" || url.protocol === "https:";
+    return url.protocol === "https:" && url.href.startsWith("https://docs.google.com/");
   } catch {
     return false;
   }
