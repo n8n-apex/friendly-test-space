@@ -205,7 +205,7 @@ export function Home() {
         </GlassCard>
 
         <p className="mt-8 text-center text-[11px] tracking-wide text-foreground/30">
-          Powered by n8n
+          {"\n"}
         </p>
       </div>
     </main>
