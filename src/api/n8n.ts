@@ -30,15 +30,18 @@ export async function createFormAssistant(
   if (n8nConfig.mockMode) return mockCreateFormAssistant(payload);
 
   // The n8n Form trigger expects positional field names (field-0 … field-5),
-  // in the order the fields are defined in the form.
+  // in the order the fields are defined in the form. Request URL (field-1)
+  // and API Key (field-2) stay empty — only the user-filled fields are sent.
   const form = new FormData();
   form.append("field-0", payload.googleDocLink ?? "");
-  form.append("field-1", payload.categories);
-  form.append("field-2", payload.agentName);
+  form.append("field-1", "");
+  form.append("field-2", "");
+  form.append("field-3", payload.categories);
+  form.append("field-4", payload.agentName);
   if (payload.file) {
-    form.append("field-3", payload.file, payload.file.name);
+    form.append("field-5", payload.file, payload.file.name);
   } else {
-    form.append("field-3", "");
+    form.append("field-5", "");
   }
   form.append("submittedAt", toLocalIsoString(new Date()));
   form.append("formMode", "production");
