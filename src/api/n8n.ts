@@ -34,8 +34,6 @@ export async function createFormAssistant(
   // and API Key (field-2) stay empty — only the user-filled fields are sent.
   const form = new FormData();
   form.append("field-0", payload.googleDocLink ?? "");
-  form.append("field-1", "");
-  form.append("field-2", "");
   form.append("field-3", payload.categories);
   form.append("field-4", payload.agentName);
   if (payload.file) {
