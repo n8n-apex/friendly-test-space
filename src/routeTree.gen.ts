@@ -15,7 +15,6 @@ import { Route as CreateEverythingRouteImport } from './routes/create-everything
 import { Route as DocumentToolsRouteImport } from './routes/document-tools'
 import { Route as EmailToolsRouteImport } from './routes/email-tools'
 import { Route as PropertyToolsRouteImport } from './routes/property-tools'
-import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,11 +46,6 @@ const PropertyToolsRoute = PropertyToolsRouteImport.update({
   path: '/property-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,7 +54,6 @@ export interface FileRoutesByFullPath {
   '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
-  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +62,6 @@ export interface FileRoutesByTo {
   '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
-  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +71,6 @@ export interface FileRoutesById {
   '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
-  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +81,6 @@ export interface FileRouteTypes {
     | '/document-tools'
     | '/email-tools'
     | '/property-tools'
-    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,7 +89,6 @@ export interface FileRouteTypes {
     | '/document-tools'
     | '/email-tools'
     | '/property-tools'
-    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -108,7 +97,6 @@ export interface FileRouteTypes {
     | '/document-tools'
     | '/email-tools'
     | '/property-tools'
-    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,7 +106,6 @@ export interface RootRouteChildren {
   DocumentToolsRoute: typeof DocumentToolsRoute
   EmailToolsRoute: typeof EmailToolsRoute
   PropertyToolsRoute: typeof PropertyToolsRoute
-  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,13 +152,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertyToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -182,7 +162,6 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentToolsRoute: DocumentToolsRoute,
   EmailToolsRoute: EmailToolsRoute,
   PropertyToolsRoute: PropertyToolsRoute,
-  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
