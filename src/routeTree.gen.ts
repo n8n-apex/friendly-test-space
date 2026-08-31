@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmailToolsRouteImport } from './routes/email-tools'
+import { Route as PropertyToolsRouteImport } from './routes/property-tools'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailToolsRoute = EmailToolsRouteImport.update({
+  id: '/email-tools',
+  path: '/email-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyToolsRoute = PropertyToolsRouteImport.update({
+  id: '/property-tools',
+  path: '/property-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/email-tools' | '/property-tools'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/email-tools' | '/property-tools'
+  id: '__root__' | '/' | '/email-tools' | '/property-tools'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EmailToolsRoute: typeof EmailToolsRoute
+  PropertyToolsRoute: typeof PropertyToolsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email-tools': {
+      id: '/email-tools'
+      path: '/email-tools'
+      fullPath: '/email-tools'
+      preLoaderRoute: typeof EmailToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-tools': {
+      id: '/property-tools'
+      path: '/property-tools'
+      fullPath: '/property-tools'
+      preLoaderRoute: typeof PropertyToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmailToolsRoute: EmailToolsRoute,
+  PropertyToolsRoute: PropertyToolsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

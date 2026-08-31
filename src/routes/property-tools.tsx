@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { AppShell, Panel } from "@/components/ops/AppShell";
 import { CategoriesField, parseCategories } from "@/components/ops/CategoriesField";
 import { StepList } from "@/components/ops/StepList";
-import { ErrorPanel } from "@/components/ops/ErrorPanel";
+import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
 import { ResultPanel } from "@/components/ops/ResultRows";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { n8nClient, WorkflowError } from "@/api/n8nClient";
+import { n8nClient } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import { CLEANER_STEPS, type WorkflowResult } from "@/types/workflow";
 
@@ -49,7 +49,7 @@ function PropertyTools() {
   const [phase, setPhase] = useState<Phase>("form");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [result, setResult] = useState<WorkflowResult | null>(null);
-  const [error, setError] = useState<{ message: string; details?: string } | null>(null);
+  const [error, setError] = useState<WorkflowErrorState | null>(null);
   const steps = useSteps(CLEANER_STEPS);
 
   const parsed = parseCategories(categories);
@@ -66,13 +66,7 @@ function PropertyTools() {
       setPhase("success");
     } catch (workflowError) {
       steps.fail();
-      setError({
-        message:
-          workflowError instanceof WorkflowError
-            ? workflowError.message
-            : "Unable to clear the properties.",
-        details: workflowError instanceof WorkflowError ? workflowError.details : undefined,
-      });
+      setError(toErrorState(workflowError, "Unexpected workflow failure."));
       setPhase("error");
     }
   };

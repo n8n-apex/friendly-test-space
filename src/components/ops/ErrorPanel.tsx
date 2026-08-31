@@ -44,3 +44,16 @@ export function ErrorPanel({
     </div>
   );
 }
+
+export type WorkflowErrorState = { message: string; details?: string | undefined };
+
+/** Normalizes any thrown value into a user-facing message + technical details. */
+export function toErrorState(error: unknown, fallback: string): WorkflowErrorState {
+  if (error && typeof error === "object" && "details" in error && error instanceof Error) {
+    return { message: error.message || fallback, details: String((error as { details?: unknown }).details ?? "") };
+  }
+  return {
+    message: fallback,
+    details: error instanceof Error ? error.message : String(error),
+  };
+}

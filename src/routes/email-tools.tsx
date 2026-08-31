@@ -2,12 +2,12 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, Panel } from "@/components/ops/AppShell";
 import { StepList } from "@/components/ops/StepList";
-import { ErrorPanel } from "@/components/ops/ErrorPanel";
+import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
 import { ResultPanel } from "@/components/ops/ResultRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { n8nClient, WorkflowError } from "@/api/n8nClient";
+import { n8nClient } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import { EMAILER_STEPS, type WorkflowResult } from "@/types/workflow";
 
@@ -39,7 +39,7 @@ function EmailTools() {
   const [touched, setTouched] = useState(false);
   const [phase, setPhase] = useState<"form" | "running" | "success" | "error">("form");
   const [result, setResult] = useState<WorkflowResult | null>(null);
-  const [error, setError] = useState<{ message: string; details?: string } | null>(null);
+  const [error, setError] = useState<WorkflowErrorState | null>(null);
   const steps = useSteps(EMAILER_STEPS);
 
   const valid = EMAIL_PATTERN.test(email.trim());
@@ -54,13 +54,7 @@ function EmailTools() {
       setPhase("success");
     } catch (workflowError) {
       steps.fail();
-      setError({
-        message:
-          workflowError instanceof WorkflowError
-            ? workflowError.message
-            : "Unable to send the property summary.",
-        details: workflowError instanceof WorkflowError ? workflowError.details : undefined,
-      });
+      setError(toErrorState(workflowError, "Unexpected workflow failure."));
       setPhase("error");
     }
   };
