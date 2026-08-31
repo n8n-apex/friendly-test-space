@@ -35,8 +35,8 @@ export const Route = createFileRoute("/document-tools")({
 });
 
 function DocumentTools() {
-  const [sourceType, setSourceType] = useState<SourceType>("file");
-const [file, setFile] = useState<File | null>(null);
+const [sourceType, setSourceType] = useState<SourceType>("file");
+  const [file, setFile] = useState<File | null>(null);
   const [docLink, setDocLink] = useState("");
   const [phase, setPhase] = useState<"form" | "running" | "success" | "error">("form");
   const [result, setResult] = useState<WorkflowResult | null>(null);
@@ -48,8 +48,8 @@ const [file, setFile] = useState<File | null>(null);
   const canSubmit = sourceReady;
 
   const submit = async () => {
-    setPhase("running");
-steps.start(UPLOAD_STEPS, UPLOAD_STEPS.length - 1);
+setPhase("running");
+    steps.start(UPLOAD_STEPS, UPLOAD_STEPS.length - 1);
     try {
       const response = await n8nClient.uploadDocument({
         sourceType,
@@ -107,8 +107,8 @@ steps.start(UPLOAD_STEPS, UPLOAD_STEPS.length - 1);
                   <p className="mt-1.5 text-xs text-destructive">
                     The link must start with https://docs.google.com/.
                   </p>
-                )}
-</div>
+)}
+              </div>
             )}
 
             <Button disabled={!canSubmit} onClick={submit}>
