@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as CreateEverythingRouteImport } from './routes/create-everything'
+import { Route as DocumentToolsRouteImport } from './routes/document-tools'
+import { Route as EmailToolsRouteImport } from './routes/email-tools'
+import { Route as PropertyToolsRouteImport } from './routes/property-tools'
+import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiAgentsRoute = AiAgentsRouteImport.update({
+  id: '/ai-agents',
+  path: '/ai-agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateEverythingRoute = CreateEverythingRouteImport.update({
+  id: '/create-everything',
+  path: '/create-everything',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentToolsRoute = DocumentToolsRouteImport.update({
+  id: '/document-tools',
+  path: '/document-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailToolsRoute = EmailToolsRouteImport.update({
+  id: '/email-tools',
+  path: '/email-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertyToolsRoute = PropertyToolsRouteImport.update({
+  id: '/property-tools',
+  path: '/property-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/create-everything': typeof CreateEverythingRoute
+  '/document-tools': typeof DocumentToolsRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/create-everything': typeof CreateEverythingRoute
+  '/document-tools': typeof DocumentToolsRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/create-everything': typeof CreateEverythingRoute
+  '/document-tools': typeof DocumentToolsRoute
+  '/email-tools': typeof EmailToolsRoute
+  '/property-tools': typeof PropertyToolsRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ai-agents'
+    | '/create-everything'
+    | '/document-tools'
+    | '/email-tools'
+    | '/property-tools'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ai-agents'
+    | '/create-everything'
+    | '/document-tools'
+    | '/email-tools'
+    | '/property-tools'
+    | '/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-agents'
+    | '/create-everything'
+    | '/document-tools'
+    | '/email-tools'
+    | '/property-tools'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAgentsRoute: typeof AiAgentsRoute
+  CreateEverythingRoute: typeof CreateEverythingRoute
+  DocumentToolsRoute: typeof DocumentToolsRoute
+  EmailToolsRoute: typeof EmailToolsRoute
+  PropertyToolsRoute: typeof PropertyToolsRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-agents': {
+      id: '/ai-agents'
+      path: '/ai-agents'
+      fullPath: '/ai-agents'
+      preLoaderRoute: typeof AiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-everything': {
+      id: '/create-everything'
+      path: '/create-everything'
+      fullPath: '/create-everything'
+      preLoaderRoute: typeof CreateEverythingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/document-tools': {
+      id: '/document-tools'
+      path: '/document-tools'
+      fullPath: '/document-tools'
+      preLoaderRoute: typeof DocumentToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-tools': {
+      id: '/email-tools'
+      path: '/email-tools'
+      fullPath: '/email-tools'
+      preLoaderRoute: typeof EmailToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/property-tools': {
+      id: '/property-tools'
+      path: '/property-tools'
+      fullPath: '/property-tools'
+      preLoaderRoute: typeof PropertyToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAgentsRoute: AiAgentsRoute,
+  CreateEverythingRoute: CreateEverythingRoute,
+  DocumentToolsRoute: DocumentToolsRoute,
+  EmailToolsRoute: EmailToolsRoute,
+  PropertyToolsRoute: PropertyToolsRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
