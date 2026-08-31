@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as DocumentToolsRouteImport } from './routes/document-tools'
 import { Route as EmailToolsRouteImport } from './routes/email-tools'
 import { Route as PropertyToolsRouteImport } from './routes/property-tools'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiAgentsRoute = AiAgentsRouteImport.update({
+  id: '/ai-agents',
+  path: '/ai-agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentToolsRoute = DocumentToolsRouteImport.update({
+  id: '/document-tools',
+  path: '/document-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailToolsRoute = EmailToolsRouteImport.update({
@@ -31,30 +43,46 @@ const PropertyToolsRoute = PropertyToolsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
+  '/document-tools': typeof DocumentToolsRoute
   '/email-tools': typeof EmailToolsRoute
   '/property-tools': typeof PropertyToolsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/email-tools' | '/property-tools'
+  fullPaths:
+    '/' | '/ai-agents' | '/document-tools' | '/email-tools' | '/property-tools'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/email-tools' | '/property-tools'
-  id: '__root__' | '/' | '/email-tools' | '/property-tools'
+  to:
+    '/' | '/ai-agents' | '/document-tools' | '/email-tools' | '/property-tools'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-agents'
+    | '/document-tools'
+    | '/email-tools'
+    | '/property-tools'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAgentsRoute: typeof AiAgentsRoute
+  DocumentToolsRoute: typeof DocumentToolsRoute
   EmailToolsRoute: typeof EmailToolsRoute
   PropertyToolsRoute: typeof PropertyToolsRoute
 }
@@ -66,6 +94,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-agents': {
+      id: '/ai-agents'
+      path: '/ai-agents'
+      fullPath: '/ai-agents'
+      preLoaderRoute: typeof AiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/document-tools': {
+      id: '/document-tools'
+      path: '/document-tools'
+      fullPath: '/document-tools'
+      preLoaderRoute: typeof DocumentToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email-tools': {
@@ -87,6 +129,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAgentsRoute: AiAgentsRoute,
+  DocumentToolsRoute: DocumentToolsRoute,
   EmailToolsRoute: EmailToolsRoute,
   PropertyToolsRoute: PropertyToolsRoute,
 }
