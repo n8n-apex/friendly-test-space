@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { TypeToConfirm, isConfirmed } from "@/components/ops/TypeToConfirm";
 import { n8nClient } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import { CLEANER_STEPS, type WorkflowResult } from "@/types/workflow";
@@ -48,6 +49,7 @@ function PropertyTools() {
   const [categories, setCategories] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [error, setError] = useState<WorkflowErrorState | null>(null);
   const steps = useSteps(CLEANER_STEPS);
@@ -57,6 +59,7 @@ function PropertyTools() {
 
   const run = async () => {
     setConfirmOpen(false);
+    setConfirmText("");
     setPhase("running");
     steps.start(CLEANER_STEPS, CLEANER_STEPS.length - 1);
     try {
@@ -140,7 +143,13 @@ function PropertyTools() {
         )}
       </Panel>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialog
+        open={confirmOpen}
+        onOpenChange={(open) => {
+          setConfirmOpen(open);
+          if (!open) setConfirmText("");
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Properties?</AlertDialogTitle>
@@ -163,15 +172,18 @@ function PropertyTools() {
                     </ul>
                   </>
                 )}
-                <p>This action modifies Learning Suite.</p>
+                <p>This action modifies Learning Suite and cannot be undone.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          <TypeToConfirm value={confirmText} onChange={setConfirmText} />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={run}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={!isConfirmed(confirmText)}
+              className="disabled:pointer-events-none disabled:opacity-40 bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {wipeAll ? "Clear EVERYTHING" : "Clear Properties"}
             </AlertDialogAction>

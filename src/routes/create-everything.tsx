@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { TypeToConfirm, isConfirmed } from "@/components/ops/TypeToConfirm";
 import { n8nClient } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import {
@@ -67,6 +68,7 @@ function CreateEverything() {
   const [docLink, setDocLink] = useState("");
   const [wipe, setWipe] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [wipeCompleted, setWipeCompleted] = useState(false);
   const [wipeFailed, setWipeFailed] = useState(false);
@@ -93,6 +95,7 @@ function CreateEverything() {
 
   const run = async () => {
     setConfirmOpen(false);
+    setConfirmText("");
     setPhase("running");
     setWipeFailed(false);
     setWipeCompleted(false);
@@ -272,7 +275,13 @@ function CreateEverything() {
         )}
       </Panel>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialog
+        open={confirmOpen}
+        onOpenChange={(open) => {
+          setConfirmOpen(open);
+          if (!open) setConfirmText("");
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -305,11 +314,14 @@ function CreateEverything() {
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          <TypeToConfirm value={confirmText} onChange={setConfirmText} id="confirm-wipe" />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => void run()}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={!isConfirmed(confirmText)}
+              className="disabled:pointer-events-none disabled:opacity-40 bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {parsed.length === 0 ? "Wipe Everything & Continue" : "Wipe & Continue"}
             </AlertDialogAction>
