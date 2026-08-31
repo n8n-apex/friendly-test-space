@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, Panel } from "@/components/ops/AppShell";
-import {
-  CategoriesField,
-  SourceTabs,
-  isValidGoogleDocUrl,
-} from "@/components/ops/CategoriesField";
+import { SourceTabs, isValidGoogleDocUrl } from "@/components/ops/CategoriesField";
 import { FileDropzone } from "@/components/FileDropzone";
 import { StepList } from "@/components/ops/StepList";
 import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
@@ -42,7 +38,6 @@ function DocumentTools() {
   const [sourceType, setSourceType] = useState<SourceType>("file");
   const [file, setFile] = useState<File | null>(null);
   const [docLink, setDocLink] = useState("");
-  const [categories, setCategories] = useState("");
   const [phase, setPhase] = useState<"form" | "running" | "success" | "error">("form");
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [error, setError] = useState<WorkflowErrorState | null>(null);
@@ -50,14 +45,13 @@ function DocumentTools() {
 
   const sourceReady =
     sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
-  const canSubmit = sourceReady && categories.trim().length > 0;
+  const canSubmit = sourceReady;
 
   const submit = async () => {
     setPhase("running");
     steps.start(UPLOAD_STEPS, UPLOAD_STEPS.length - 1);
     try {
       const response = await n8nClient.uploadDocument({
-        categories: categories.trim(),
         sourceType,
         ...(sourceType === "google_doc"
           ? { googleDocLink: docLink.trim() }
@@ -114,14 +108,8 @@ function DocumentTools() {
                     The link must start with https://docs.google.com/.
                   </p>
                 )}
-              </div>
+            </div>
             )}
-
-            <CategoriesField
-              value={categories}
-              onChange={setCategories}
-              hint="Enter the Learning Suite categories the document should populate. Separate multiple names with commas."
-            />
 
             <Button disabled={!canSubmit} onClick={submit}>
               Upload to Learning Suite
