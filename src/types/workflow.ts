@@ -9,7 +9,6 @@ export type CreateFormAssistantPayload = {
 };
 
 export type UploadDocumentPayload = {
-  categories: string;
   sourceType: SourceType;
   googleDocLink?: string | undefined;
   file?: File | undefined;

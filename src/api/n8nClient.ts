@@ -111,10 +111,9 @@ export const n8nClient = {
     }));
   },
 
-  uploadDocument(payload: UploadDocumentPayload) {
+uploadDocument(payload: UploadDocumentPayload) {
     return submitWorkflow("uploadDocument", [
       payload.sourceType === "google_doc" ? (payload.googleDocLink ?? "") : "",
-      payload.categories,
       payload.sourceType === "file" ? (payload.file ?? "") : "",
     ]);
   },
