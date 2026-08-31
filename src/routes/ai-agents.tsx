@@ -36,7 +36,7 @@ export const Route = createFileRoute("/ai-agents")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AiAgents;
+  component: AiAgents,
 });
 
 function AiAgents() {
