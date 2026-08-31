@@ -24,7 +24,16 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const actions = [
+type ActionCard = {
+  to: string;
+  icon: typeof Database;
+  title: string;
+  description: string;
+  danger?: boolean;
+  primary?: boolean;
+};
+
+const actions: ActionCard[] = [
   {
     to: "/property-tools",
     icon: Database,
@@ -58,7 +67,7 @@ const actions = [
       "Upload the document and configure the AI/Form Assistant in one operation. Includes wipe before upload.",
     primary: true,
   },
-] as const;
+];
 
 function Dashboard() {
   return (
@@ -70,7 +79,7 @@ function Dashboard() {
         {actions.map((action) => (
           <Link
             key={action.to}
-            to={action.to}
+            to={action.to as never}
             className={
               "group flex flex-col rounded-md border bg-card p-4 transition-colors hover:border-foreground/30 " +
               (action.primary

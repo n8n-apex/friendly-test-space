@@ -41,7 +41,7 @@ export function AppShell({
             {nav.map((item) => (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to as never}
                 activeOptions={{ exact: item.to === "/" }}
                 activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }}
                 className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-foreground"
