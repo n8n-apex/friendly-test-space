@@ -6,7 +6,7 @@ import {
   FileText,
   Bot,
   Mail,
-  Settings as SettingsIcon,
+  Sparkles,
 } from "lucide-react";
 
 const nav = [
@@ -14,8 +14,8 @@ const nav = [
   { to: "/property-tools", label: "Property Tools", icon: Database },
   { to: "/document-tools", label: "Document Tools", icon: FileText },
   { to: "/ai-agents", label: "AI Agents", icon: Bot },
+  { to: "/create-everything", label: "Create Everything", icon: Sparkles },
   { to: "/email-tools", label: "Email Tools", icon: Mail },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
 export function AppShell({
