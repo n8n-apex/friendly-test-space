@@ -17,25 +17,25 @@ export type UploadDocumentPayload = {
 
 export type WorkflowResult = {
   success: boolean;
-  agentName?: string;
-  documentName?: string;
-  categoriesProcessed?: number;
-  categoriesCreated?: number;
-  categoriesCleared?: number;
-  propertiesCreated?: number;
-  propertiesUpdated?: number;
-  matchedProperties?: number;
-  unmatchedProperties?: number;
-  formAssistantFields?: number;
-  fieldsProcessed?: number;
-  warnings?: number;
-  recipient?: string;
-  raw?: string;
+  agentName?: string | undefined;
+  documentName?: string | undefined;
+  categoriesProcessed?: number | undefined;
+  categoriesCreated?: number | undefined;
+  categoriesCleared?: number | undefined;
+  propertiesCreated?: number | undefined;
+  propertiesUpdated?: number | undefined;
+  matchedProperties?: number | undefined;
+  unmatchedProperties?: number | undefined;
+  formAssistantFields?: number | undefined;
+  fieldsProcessed?: number | undefined;
+  warnings?: number | undefined;
+  recipient?: string | undefined;
+  raw?: string | undefined;
   details?: {
-    created?: number;
-    updated?: number;
-    skipped?: number;
-    unmatched?: number;
+    created?: number | undefined;
+    updated?: number | undefined;
+    skipped?: number | undefined;
+    unmatched?: number | undefined;
   };
 };
 
