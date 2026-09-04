@@ -47,7 +47,9 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
       try {
         response = await request();
       } catch (secondError) {
-        console.error("Category webhook request failed after retry", secondError);
+        console.error("Category webhook request failed after retry", {
+          reason: secondError instanceof Error ? secondError.name : "UnknownError",
+        });
         throw new Error("The category list could not be loaded.");
       }
     }
