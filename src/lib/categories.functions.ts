@@ -16,9 +16,17 @@ export type LearningSuiteCategory = {
  */
 export const listCategories = createServerFn({ method: "GET" }).handler(
   async (): Promise<LearningSuiteCategory[]> => {
-    const url = process.env["N8N_CATEGORIES_WEBHOOK_URL"];
-    const key = process.env["N8N_CATEGORIES_WEBHOOK_KEY"];
-    if (!url || !key) throw new Error("Category source is not configured.");
+    // Trim values because Railway variables copied from another dashboard can
+    // contain an invisible trailing newline. Never log either secret value.
+    const url = process.env["N8N_CATEGORIES_WEBHOOK_URL"]?.trim();
+    const key = process.env["N8N_CATEGORIES_WEBHOOK_KEY"]?.trim();
+    if (!url || !key) {
+      console.error("Category source is not configured", {
+        hasWebhookUrl: Boolean(url),
+        hasWebhookKey: Boolean(key),
+      });
+      throw new Error("Category source is not configured.");
+    }
 
     // The webhook usually answers in a few seconds; 60s is only an upper bound
     // (the request resolves as soon as n8n replies) and it is retried once.
@@ -32,12 +40,23 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
     let response: Response;
     try {
       response = await request();
-    } catch {
-      response = await request();
+    } catch (firstError) {
+      console.warn("Category webhook request failed; retrying once", {
+        reason: firstError instanceof Error ? firstError.name : "UnknownError",
+      });
+      try {
+        response = await request();
+      } catch (secondError) {
+        console.error("Category webhook request failed after retry", {
+          reason: secondError instanceof Error ? secondError.name : "UnknownError",
+        });
+        throw new Error("The category list could not be loaded.");
+      }
     }
 
     if (!response.ok) {
       // Never surface the upstream body/URL to the client.
+      console.error("Category webhook returned an error", { status: response.status });
       throw new Error("The category list could not be loaded.");
     }
 
@@ -54,7 +73,7 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
     const raw =
       asCategories(Array.isArray(payload) ? asCategories(payload[0]) ?? payload : payload) ?? [];
 
-    return raw
+    const categories = raw
       .map((item) => {
         if (typeof item === "string") return { id: item, name: item };
         if (item && typeof item === "object") {
@@ -71,5 +90,12 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
       })
       .filter((item): item is LearningSuiteCategory => item !== null)
       .sort((a, b) => (a.sortIndex ?? 0) - (b.sortIndex ?? 0));
+
+    if (categories.length === 0) {
+      console.error("Category webhook returned no valid categories");
+      throw new Error("The category list could not be loaded.");
+    }
+
+    return categories;
   },
 );
