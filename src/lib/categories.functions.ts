@@ -20,7 +20,8 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
     const key = process.env["N8N_CATEGORIES_WEBHOOK_KEY"];
     if (!url || !key) throw new Error("Category source is not configured.");
 
-    // The n8n webhook can be slow to wake up — allow up to 60s and retry once.
+    // The webhook usually answers in a few seconds; 60s is only an upper bound
+    // (the request resolves as soon as n8n replies) and it is retried once.
     const request = async () =>
       fetch(url, {
         method: "GET",
@@ -40,12 +41,18 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
       throw new Error("The category list could not be loaded.");
     }
 
+    // Accepted shapes: { categories: [...] }, [ { categories: [...] } ] and [ ... ].
     const payload = (await response.json()) as unknown;
-    const root = Array.isArray(payload) ? payload[0] : payload;
+    const asCategories = (input: unknown): unknown[] | null => {
+      if (Array.isArray(input)) return input;
+      if (input && typeof input === "object") {
+        const list = (input as { categories?: unknown }).categories;
+        if (Array.isArray(list)) return list;
+      }
+      return null;
+    };
     const raw =
-      root && typeof root === "object" && Array.isArray((root as { categories?: unknown }).categories)
-        ? ((root as { categories: unknown[] }).categories as unknown[])
-        : [];
+      asCategories(Array.isArray(payload) ? asCategories(payload[0]) ?? payload : payload) ?? [];
 
     return raw
       .map((item) => {
