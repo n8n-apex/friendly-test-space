@@ -18,15 +18,26 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
   async (): Promise<LearningSuiteCategory[]> => {
     // Trim values because Railway variables copied from another dashboard can
     // contain an invisible trailing newline. Never log either secret value.
-    const url = process.env["N8N_CATEGORIES_WEBHOOK_URL"]?.trim();
-    const key = process.env["N8N_CATEGORIES_WEBHOOK_KEY"]?.trim();
+    const read = (...names: string[]) => {
+      for (const name of names) {
+        const value = process.env[name]?.trim();
+        if (value) return value;
+      }
+      return undefined;
+    };
+    const url = read("N8N_CATEGORIES_WEBHOOK_URL", "CATEGORIES_WEBHOOK_URL");
+    const key = read("N8N_CATEGORIES_WEBHOOK_KEY", "CATEGORIES_WEBHOOK_KEY");
     if (!url || !key) {
-      console.error("Category source is not configured", {
-        hasWebhookUrl: Boolean(url),
-        hasWebhookKey: Boolean(key),
-      });
+      console.error(
+        "Category source is not configured. Set N8N_CATEGORIES_WEBHOOK_URL and N8N_CATEGORIES_WEBHOOK_KEY as environment variables on the hosting service (Railway) — Lovable secrets are not copied there automatically.",
+        {
+          hasWebhookUrl: Boolean(url),
+          hasWebhookKey: Boolean(key),
+        },
+      );
       throw new Error("Category source is not configured.");
     }
+
 
     // The webhook usually answers in a few seconds; 60s is only an upper bound
     // (the request resolves as soon as n8n replies) and it is retried once.
