@@ -69,7 +69,7 @@ export function CategoriesField({
                 ? "Select categories…"
                 : `${selected.length} selected`}
             </span>
-            {isPending ? (
+            {isPending || isFetching ? (
               <Loader2 className="h-4 w-4 shrink-0 animate-spin opacity-60" aria-hidden />
             ) : (
               <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
