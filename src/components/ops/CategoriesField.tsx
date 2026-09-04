@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { listCategories } from "@/lib/categories.functions";
+import { categoriesQueryOptions } from "@/lib/categories.queries";
 
 export function parseCategories(value: string): string[] {
   return value
@@ -32,11 +33,9 @@ export function CategoriesField({
 }) {
   const [open, setOpen] = useState(false);
   const fetchCategories = useServerFn(listCategories);
-  const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["learning-suite-categories"],
-    queryFn: () => fetchCategories(),
-    staleTime: 5 * 60_000,
-  });
+  const { data, isPending, isFetching, isError, refetch } = useQuery(
+    categoriesQueryOptions(fetchCategories),
+  );
 
   const selected = useMemo(() => parseCategories(value), [value]);
   const options = useMemo(() => {
@@ -70,7 +69,7 @@ export function CategoriesField({
                 ? "Select categories…"
                 : `${selected.length} selected`}
             </span>
-            {isPending ? (
+            {isPending || isFetching ? (
               <Loader2 className="h-4 w-4 shrink-0 animate-spin opacity-60" aria-hidden />
             ) : (
               <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
@@ -92,7 +91,9 @@ export function CategoriesField({
               </Button>
             </div>
           ) : isPending ? (
-            <p className="p-3 text-sm text-muted-foreground">Loading categories…</p>
+            <p className="p-3 text-sm text-muted-foreground">
+              Loading categories… this can take a few seconds.
+            </p>
           ) : options.length === 0 ? (
             <p className="p-3 text-sm text-muted-foreground">No categories available.</p>
           ) : (
