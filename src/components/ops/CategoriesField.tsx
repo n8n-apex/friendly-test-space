@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { listCategories } from "@/lib/categories.functions";
+import { categoriesQueryOptions } from "@/lib/categories.queries";
 
 export function parseCategories(value: string): string[] {
   return value
