@@ -91,7 +91,9 @@ export function CategoriesField({
               </Button>
             </div>
           ) : isPending ? (
-            <p className="p-3 text-sm text-muted-foreground">Loading categories…</p>
+            <p className="p-3 text-sm text-muted-foreground">
+              Loading categories… this can take a few seconds.
+            </p>
           ) : options.length === 0 ? (
             <p className="p-3 text-sm text-muted-foreground">No categories available.</p>
           ) : (
