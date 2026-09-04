@@ -96,7 +96,7 @@ function PropertyTools() {
             <CategoriesField
               value={categories}
               onChange={setCategories}
-              hint="Enter one or more category names separated by commas. Examples: Anbieter-Profil · Zielgruppen-Profil · Anbieter-Profil, Zielgruppen-Profil"
+              hint="Select one or more categories. Leave empty to target ALL categories."
             />
 
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">

@@ -173,7 +173,7 @@ function CreateEverything() {
             <CategoriesField
               value={categories}
               onChange={setCategories}
-              hint="Comma-separated category names. The same value is used for the wipe step when enabled."
+              hint="Select one or more categories. The same selection is used for the wipe step when enabled."
             />
 
             <SourceTabs value={sourceType} onChange={setSourceType} />
