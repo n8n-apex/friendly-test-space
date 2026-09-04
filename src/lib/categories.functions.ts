@@ -20,10 +20,20 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
     const key = process.env["N8N_CATEGORIES_WEBHOOK_KEY"];
     if (!url || !key) throw new Error("Category source is not configured.");
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "X-Custom-Key": key, Accept: "application/json" },
-    });
+    // The n8n webhook can be slow to wake up — allow up to 60s and retry once.
+    const request = async () =>
+      fetch(url, {
+        method: "GET",
+        headers: { "X-Custom-Key": key, Accept: "application/json" },
+        signal: AbortSignal.timeout(60_000),
+      });
+
+    let response: Response;
+    try {
+      response = await request();
+    } catch {
+      response = await request();
+    }
 
     if (!response.ok) {
       // Never surface the upstream body/URL to the client.
