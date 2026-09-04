@@ -33,11 +33,9 @@ export function CategoriesField({
 }) {
   const [open, setOpen] = useState(false);
   const fetchCategories = useServerFn(listCategories);
-  const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["learning-suite-categories"],
-    queryFn: () => fetchCategories(),
-    staleTime: 5 * 60_000,
-  });
+  const { data, isPending, isFetching, isError, refetch } = useQuery(
+    categoriesQueryOptions(fetchCategories),
+  );
 
   const selected = useMemo(() => parseCategories(value), [value]);
   const options = useMemo(() => {
