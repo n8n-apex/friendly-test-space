@@ -79,13 +79,22 @@ function CreateEverything() {
   const sourceReady = sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
   const canSubmit = sourceReady && agentName.trim().length > 0 && (wipe || parsed.length > 0);
 
+  // Wait until typing settles before starting a read that can run for minutes.
+  const [settledDocLink, setSettledDocLink] = useState("");
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledDocLink(docLink.trim()), 800);
+    return () => window.clearTimeout(timer);
+  }, [docLink]);
+
   // The document decides which categories exist; read it as soon as it is ready.
   const documentKey =
     sourceType === "file"
       ? file
         ? `file:${file.name}:${file.size}:${file.lastModified}`
         : ""
-      : docLink.trim();
+      : isValidGoogleDocUrl(settledDocLink)
+        ? settledDocLink
+        : "";
   const documentCategoriesQuery = useQuery({
     queryKey: ["document-categories", documentKey],
     enabled: sourceReady && documentKey.length > 0,
@@ -93,7 +102,7 @@ function CreateEverything() {
       fetchDocumentCategories({
         sourceType,
         ...(sourceType === "google_doc"
-          ? { googleDocLink: docLink.trim() }
+          ? { googleDocLink: settledDocLink }
           : { file: file ?? undefined }),
       }),
     staleTime: Infinity,
