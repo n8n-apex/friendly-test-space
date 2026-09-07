@@ -217,6 +217,10 @@ function CreateEverything() {
                 disabledHint="Add the document first — then pick its categories."
                 documentCategories={documentCategoriesQuery.data ?? []}
                 documentLoading={documentCategoriesQuery.isFetching}
+                documentEmpty={
+                  documentCategoriesQuery.isFetched && (documentCategoriesQuery.data ?? []).length === 0
+                }
+
                 hint="Existing categories come from Learning Suite. Add any extra one you found in the document."
               />
 
