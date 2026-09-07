@@ -53,12 +53,16 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
           body: JSON.stringify(data),
         };
       }
-      // Send the actual file bytes (binary multipart), not a data URL.
+      // Send the actual file bytes as a real multipart file part (with filename),
+      // so the workflow receives binary data instead of a text field.
       const base64 = file.data.includes(",") ? file.data.slice(file.data.indexOf(",") + 1) : file.data;
       const binary = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+      const blob = new Blob([binary], { type: file.mimeType || "application/octet-stream" });
       const form = new FormData();
       form.append("Google Doc Link", data["Google Doc Link"] ?? "");
-      form.append("File", new File([binary], file.name, { type: file.mimeType || "application/octet-stream" }));
+      // Common binary property names so the workflow finds it either way.
+      form.append("File", blob, file.name);
+      form.append("data", blob, file.name);
       // Let fetch set the multipart boundary itself.
       return { headers: {} as Record<string, string>, body: form };
     };
