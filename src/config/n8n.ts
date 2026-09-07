@@ -21,9 +21,12 @@ export type WorkflowKey =
 export const EXISTING_COMBINED_WORKFLOW_URL =
   "https://apexcnsltng.app.n8n.cloud/form/ecdf6bad-28b0-43df-8920-9f95507b1358";
 
-/** Additional JSON webhook that receives "Google Doc Link" / "File". */
+/**
+ * JSON webhook that receives "Google Doc Link" / "File" and returns the
+ * categories found inside that document.
+ */
 export const COMBINED_JSON_WORKFLOW_URL =
-  "https://apexcnsltng.app.n8n.cloud/webhook-test/5416d3fd-0615-4159-9409-1d6be17a6abc";
+  "https://apexcnsltng.app.n8n.cloud/webhook/5416d3fd-0615-4159-9409-1d6be17a6abc";
 
 export const DEFAULT_N8N_ENDPOINTS: Record<WorkflowKey, string> = {
   propertyCleaner: "https://apexcnsltng.app.n8n.cloud/form/3e548c92-4df0-4de4-827d-52a759481784",

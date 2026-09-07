@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import { AppShell, Instructions } from "@/components/ops/AppShell";
 import {
@@ -27,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { TypeToConfirm, isConfirmed } from "@/components/ops/TypeToConfirm";
-import { n8nClient } from "@/api/n8nClient";
+import { n8nClient, fetchDocumentCategories } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import {
   COMBINED_STEPS,
@@ -77,6 +78,29 @@ function CreateEverything() {
   const parsed = parseCategories(categories);
   const sourceReady = sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
   const canSubmit = sourceReady && agentName.trim().length > 0 && (wipe || parsed.length > 0);
+
+  // The document decides which categories exist; read it as soon as it is ready.
+  const documentKey =
+    sourceType === "file"
+      ? file
+        ? `file:${file.name}:${file.size}:${file.lastModified}`
+        : ""
+      : docLink.trim();
+  const documentCategoriesQuery = useQuery({
+    queryKey: ["document-categories", documentKey],
+    enabled: sourceReady && documentKey.length > 0,
+    queryFn: () =>
+      fetchDocumentCategories({
+        sourceType,
+        ...(sourceType === "google_doc"
+          ? { googleDocLink: docLink.trim() }
+          : { file: file ?? undefined }),
+      }),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
 
   const activeSteps = wipe ? [WIPE_STEP, ...COMBINED_STEPS] : COMBINED_STEPS;
 
@@ -191,6 +215,8 @@ function CreateEverything() {
                 onChange={setCategories}
                 disabled={!sourceReady}
                 disabledHint="Add the document first — then pick its categories."
+                documentCategories={documentCategoriesQuery.data ?? []}
+                documentLoading={documentCategoriesQuery.isFetching}
                 hint="Existing categories come from Learning Suite. Add any extra one you found in the document."
               />
 

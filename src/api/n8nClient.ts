@@ -109,12 +109,12 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 /**
- * Posts the document source to the additional JSON webhook via the
- * server-side proxy, which adds the required X-Custom-Key header without
- * ever exposing the key to the browser. Exact key names n8n expects:
- * "Google Doc Link" and "File".
+ * Posts the document source to the JSON webhook via the server-side proxy,
+ * which adds the required X-Custom-Key header without ever exposing the key
+ * to the browser. Exact key names n8n expects: "Google Doc Link" / "File".
+ * Returns the category names found inside the document.
  */
-async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<void> {
+async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<string[]> {
   const body: Record<string, unknown> = {
     "Google Doc Link": payload.sourceType === "google_doc" ? (payload.googleDocLink ?? null) : null,
     File: null,
@@ -130,13 +130,28 @@ async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<
   }
 
   try {
-    await forwardCombinedDocument({ data: body as never });
+    const response = (await forwardCombinedDocument({ data: body as never })) as {
+      categories?: string[];
+    };
+    return response?.categories ?? [];
   } catch (error) {
     throw new WorkflowError(
       error instanceof Error ? error.message : "The document webhook could not be reached.",
     );
   }
 }
+
+/** Reads the categories contained in the given document / Google Doc. */
+export function fetchDocumentCategories(
+  source: Pick<CreateFormAssistantPayload, "sourceType" | "googleDocLink" | "file">,
+): Promise<string[]> {
+  return submitCombinedJson({
+    agentName: "",
+    categories: "",
+    ...source,
+  } as CreateFormAssistantPayload);
+}
+
 
 
 

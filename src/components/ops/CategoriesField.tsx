@@ -33,6 +33,8 @@ export function CategoriesField({
   id = "categories",
   disabled = false,
   disabledHint,
+  documentCategories = [],
+  documentLoading = false,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -40,6 +42,9 @@ export function CategoriesField({
   id?: string;
   disabled?: boolean;
   disabledHint?: string;
+  /** Categories detected inside the uploaded document / Google Doc. */
+  documentCategories?: string[];
+  documentLoading?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -51,9 +56,16 @@ export function CategoriesField({
   const selected = useMemo(() => parseCategories(value), [value]);
   const suiteNames = useMemo(() => (data ?? []).map((category) => category.name), [data]);
   const documentNames = useMemo(
-    () => selected.filter((name) => !suiteNames.includes(name)),
-    [selected, suiteNames],
+    () =>
+      Array.from(
+        new Set([
+          ...documentCategories.filter((name) => !suiteNames.includes(name)),
+          ...selected.filter((name) => !suiteNames.includes(name)),
+        ]),
+      ),
+    [documentCategories, selected, suiteNames],
   );
+
 
   const toggle = (name: string) => {
     const next = selected.includes(name)
@@ -132,16 +144,21 @@ export function CategoriesField({
                   ))
                 )}
 
-                {documentNames.length > 0 && (
+                {(documentNames.length > 0 || documentLoading) && (
                   <>
                     <p className="flex items-center gap-1.5 px-2 pt-3 pb-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
                       <FileText className="h-3 w-3" aria-hidden /> New from document
                     </p>
+                    {documentLoading && (
+                      <p className="px-2 py-2 text-sm text-muted-foreground">
+                        Reading the document…
+                      </p>
+                    )}
                     {documentNames.map((name) => (
                       <Option
                         key={name}
                         name={name}
-                        selected
+                        selected={selected.includes(name)}
                         onSelect={() => toggle(name)}
                       />
                     ))}
