@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronsUpDown, FileText, Loader2, Plus, Database, X } from "lucide-react";
@@ -52,6 +52,19 @@ export function CategoriesField({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  // Reading a document can take 30s–2min, so show the wait instead of a silent spinner.
+  const [waited, setWaited] = useState(0);
+  useEffect(() => {
+    if (!documentLoading) {
+      setWaited(0);
+      return;
+    }
+    const started = Date.now();
+    const timer = window.setInterval(() => {
+      setWaited(Math.floor((Date.now() - started) / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [documentLoading]);
   const fetchCategories = useServerFn(listCategories);
   const { data, isPending, isFetching, isError, refetch } = useQuery(
     categoriesQueryOptions(fetchCategories),
@@ -154,8 +167,10 @@ export function CategoriesField({
                       <FileText className="h-3 w-3" aria-hidden /> New from document
                     </p>
                     {documentLoading && (
-                      <p className="px-2 py-2 text-sm text-muted-foreground">
-                        Reading the document…
+                      <p className="flex items-center gap-2 px-2 py-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                        Reading the document… this usually takes 30 seconds to 2 minutes
+                        {waited > 0 ? ` (${waited}s)` : ""}
                       </p>
                     )}
                     {!documentLoading && documentEmpty && documentNames.length === 0 && (

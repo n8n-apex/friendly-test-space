@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { AppShell, Instructions } from "@/components/ops/AppShell";
 import {
   CategoriesField,
@@ -79,13 +79,22 @@ function CreateEverything() {
   const sourceReady = sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
   const canSubmit = sourceReady && agentName.trim().length > 0 && (wipe || parsed.length > 0);
 
+  // Wait until typing settles before starting a read that can run for minutes.
+  const [settledDocLink, setSettledDocLink] = useState("");
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledDocLink(docLink.trim()), 800);
+    return () => window.clearTimeout(timer);
+  }, [docLink]);
+
   // The document decides which categories exist; read it as soon as it is ready.
   const documentKey =
     sourceType === "file"
       ? file
         ? `file:${file.name}:${file.size}:${file.lastModified}`
         : ""
-      : docLink.trim();
+      : isValidGoogleDocUrl(settledDocLink)
+        ? settledDocLink
+        : "";
   const documentCategoriesQuery = useQuery({
     queryKey: ["document-categories", documentKey],
     enabled: sourceReady && documentKey.length > 0,
@@ -93,13 +102,14 @@ function CreateEverything() {
       fetchDocumentCategories({
         sourceType,
         ...(sourceType === "google_doc"
-          ? { googleDocLink: docLink.trim() }
+          ? { googleDocLink: settledDocLink }
           : { file: file ?? undefined }),
       }),
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
-    retry: 1,
+    // The read can take up to 2 minutes; never queue a second full wait.
+    retry: false,
   });
 
   const activeSteps = wipe ? [WIPE_STEP, ...COMBINED_STEPS] : COMBINED_STEPS;
@@ -208,6 +218,17 @@ function CreateEverything() {
                     </p>
                   )}
                 </div>
+              )}
+
+              {documentCategoriesQuery.isFetching && (
+                <p
+                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                  Reading the document — this usually takes 30 seconds to 2 minutes.
+                </p>
               )}
 
               <CategoriesField
