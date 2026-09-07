@@ -45,7 +45,7 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
 
     // The workflow may take a while; 180s is only an upper bound and the
     // request is retried once for transient network failures / cold starts.
-    const request = async () =>
+    const post = async () =>
       fetch(url, {
         method: "POST",
         headers: {
@@ -57,18 +57,50 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
         signal: AbortSignal.timeout(180_000),
       });
 
+    // Some n8n webhooks are configured for GET only; the document reference is
+    // then passed as query parameters (a file body cannot travel on a GET).
+    const get = async () => {
+      const target = new URL(url);
+      const link = data["Google Doc Link"];
+      if (link) target.searchParams.set("Google Doc Link", link);
+      if (data.File) {
+        target.searchParams.set("File", data.File.name);
+        target.searchParams.set("File Type", data.File.mimeType);
+      }
+      return fetch(target, {
+        method: "GET",
+        headers: { "X-Custom-Key": key, Accept: "application/json" },
+        signal: AbortSignal.timeout(180_000),
+      });
+    };
+
     let response: Response;
     try {
-      response = await request();
+      response = await post();
     } catch (firstError) {
       console.warn("Document webhook request failed; retrying once", {
         reason: firstError instanceof Error ? firstError.name : "UnknownError",
       });
       try {
-        response = await request();
+        response = await post();
       } catch (secondError) {
         console.error("Document webhook request failed after retry", {
           reason: secondError instanceof Error ? secondError.name : "UnknownError",
+        });
+        throw new Error("The document webhook could not be reached.");
+      }
+    }
+
+    // 404/405 from n8n means the webhook does not accept POST — try GET.
+    if (response.status === 404 || response.status === 405) {
+      console.warn("Document webhook rejected POST; retrying as GET", {
+        status: response.status,
+      });
+      try {
+        response = await get();
+      } catch (getError) {
+        console.error("Document webhook GET fallback failed", {
+          reason: getError instanceof Error ? getError.name : "UnknownError",
         });
         throw new Error("The document webhook could not be reached.");
       }
