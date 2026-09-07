@@ -1,4 +1,5 @@
 import { getEndpoint, type WorkflowKey } from "@/config/n8n";
+import { forwardCombinedDocument } from "@/lib/combined-json.functions";
 import type {
   CreateFormAssistantPayload,
   UploadDocumentPayload,
@@ -108,13 +109,12 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 /**
- * Posts the document source to the additional JSON webhook using the
- * exact key names n8n expects: "Google Doc Link" and "File".
+ * Posts the document source to the additional JSON webhook via the
+ * server-side proxy, which adds the required X-Custom-Key header without
+ * ever exposing the key to the browser. Exact key names n8n expects:
+ * "Google Doc Link" and "File".
  */
 async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<void> {
-  const url = getEndpoint("combinedCreationJson");
-  if (!url) return;
-
   const body: Record<string, unknown> = {
     "Google Doc Link": payload.sourceType === "google_doc" ? (payload.googleDocLink ?? null) : null,
     File: null,
@@ -129,30 +129,12 @@ async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<
     };
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      const text = await response.text();
-      throw new WorkflowError(
-        `The document webhook returned an error (HTTP ${response.status}).`,
-        text.slice(0, 4000),
-      );
-    }
+    await forwardCombinedDocument({ data: body as never });
   } catch (error) {
-    if (error instanceof WorkflowError) throw error;
     throw new WorkflowError(
-      "The document webhook could not be reached.",
-      error instanceof Error ? `${error.message} · ${url}` : String(error),
+      error instanceof Error ? error.message : "The document webhook could not be reached.",
     );
-  } finally {
-    clearTimeout(timer);
   }
 }
 
