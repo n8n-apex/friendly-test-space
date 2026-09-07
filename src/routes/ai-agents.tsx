@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { AppShell, Panel } from "@/components/ops/AppShell";
+import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import {
   CategoriesField,
   SourceTabs,
@@ -21,16 +21,16 @@ import { ASSISTANT_STEPS, type SourceType, type WorkflowResult } from "@/types/w
 export const Route = createFileRoute("/ai-agents")({
   head: () => ({
     meta: [
-      { title: "Assistant Creation · Learning Suite Operations" },
+      { title: "AI Agents · Learning Suite Operations" },
       {
         name: "description",
         content:
-          "Create an AI Agent and configure its Form Assistant from a document or Google Doc using the existing automation.",
+          "Create the AI Agent, match document prompts to Learning Suite properties and configure the Form Assistant.",
       },
-      { property: "og:title", content: "Assistant Creation · Learning Suite Operations" },
+      { property: "og:title", content: "AI Agents · Learning Suite Operations" },
       {
         property: "og:description",
-        content: "Create and configure a Learning Suite AI/Form Assistant from a document.",
+        content: "Run the Learning Suite assistant creation workflow from a document.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -40,11 +40,11 @@ export const Route = createFileRoute("/ai-agents")({
 });
 
 function AiAgents() {
-  const [agentName, setAgentName] = useState("");
-  const [categories, setCategories] = useState("");
   const [sourceType, setSourceType] = useState<SourceType>("file");
   const [file, setFile] = useState<File | null>(null);
   const [docLink, setDocLink] = useState("");
+  const [categories, setCategories] = useState("");
+  const [agentName, setAgentName] = useState("");
   const [phase, setPhase] = useState<"form" | "running" | "success" | "error">("form");
   const [result, setResult] = useState<WorkflowResult | null>(null);
   const [error, setError] = useState<WorkflowErrorState | null>(null);
@@ -85,25 +85,21 @@ function AiAgents() {
 
   return (
     <AppShell
-      title="Assistant Creation"
-      description="Creates the AI Agent, matches document prompts to Learning Suite properties and configures the Form Assistant."
+      title="Create Assistant"
+      description="Builds the AI Agent from a document and configures the Form Assistant."
     >
-      <Panel title="Create Assistant">
+      <Instructions
+        steps={[
+          "Add the document first.",
+          "Check the categories it should cover.",
+          "Name the AI Agent.",
+          "Start and follow the steps.",
+        ]}
+      />
+
+      <Panel title="Assistant">
         {phase === "form" && (
           <>
-            <div>
-              <Label htmlFor="agent-name">AI Agent Name</Label>
-              <Input
-                id="agent-name"
-                value={agentName}
-                onChange={(event) => setAgentName(event.target.value)}
-                placeholder="Marketing Thesis Assistant"
-                className="mt-1.5"
-              />
-            </div>
-
-            <CategoriesField value={categories} onChange={setCategories} />
-
             <SourceTabs value={sourceType} onChange={setSourceType} />
 
             {sourceType === "file" ? (
@@ -115,7 +111,7 @@ function AiAgents() {
               </div>
             ) : (
               <div>
-                <Label htmlFor="assistant-doc-link">Google Doc Link</Label>
+                <Label htmlFor="assistant-doc-link">Google Doc link</Label>
                 <Input
                   id="assistant-doc-link"
                   type="url"
@@ -123,7 +119,7 @@ function AiAgents() {
                   value={docLink}
                   onChange={(event) => setDocLink(event.target.value)}
                   placeholder="https://docs.google.com/document/d/..."
-                  className="mt-1.5 font-mono text-sm"
+                  className="neo-inset mt-1.5 rounded-xl border-0 font-mono text-sm"
                 />
                 {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
                   <p className="mt-1.5 text-xs text-destructive">
@@ -133,7 +129,25 @@ function AiAgents() {
               </div>
             )}
 
-            <Button disabled={!canSubmit} onClick={submit}>
+            <CategoriesField
+              value={categories}
+              onChange={setCategories}
+              disabled={!sourceReady}
+              disabledHint="Add the document first — then pick its categories."
+            />
+
+            <div>
+              <Label htmlFor="agent-name">AI Agent name</Label>
+              <Input
+                id="agent-name"
+                value={agentName}
+                onChange={(event) => setAgentName(event.target.value)}
+                placeholder="Marketing Thesis Assistant"
+                className="neo-inset mt-1.5 rounded-xl border-0"
+              />
+            </div>
+
+            <Button disabled={!canSubmit} onClick={submit} className="neo-raised rounded-xl">
               Create Assistant
             </Button>
           </>
@@ -143,7 +157,7 @@ function AiAgents() {
 
         {phase === "success" && result && (
           <ResultPanel
-            title="Assistant created successfully"
+            title="Assistant created"
             rows={[
               { label: "Agent", value: result.agentName },
               { label: "Categories", value: result.categoriesProcessed },
@@ -171,12 +185,12 @@ function AiAgents() {
 
       <Link
         to="/create-everything"
-        className="flex items-center justify-between gap-4 rounded-md border border-border bg-card p-4 transition-colors hover:border-foreground/30"
+        className="glass-panel flex items-center justify-between gap-4 rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
       >
         <span>
           <span className="block text-sm font-semibold">Create Everything</span>
           <span className="mt-1 block text-sm text-muted-foreground">
-            Upload the document and configure the assistant in one operation.
+            Upload the document and configure the assistant in one run.
           </span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />

@@ -28,7 +28,7 @@ export function TypeToConfirm({
         onChange={(event) => onChange(event.target.value)}
         placeholder={CONFIRM_WORD}
         autoComplete="off"
-        className="mt-1.5 font-mono"
+        className="neo-inset mt-1.5 rounded-xl border-0 font-mono"
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
-import { AppShell, Panel } from "@/components/ops/AppShell";
+import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { CategoriesField, parseCategories } from "@/components/ops/CategoriesField";
 import { StepList } from "@/components/ops/StepList";
 import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
@@ -83,33 +83,41 @@ function PropertyTools() {
 
   return (
     <AppShell
-      title="Property Tools"
-      description="Maintenance operations on Learning Suite custom fields."
+      title="Property Cleaner"
+      description="Clears Learning Suite categories and the properties inside them."
     >
-      <Panel
-        title="Clear Learning Suite Properties"
-        description="Clears Learning Suite custom-field categories and the properties inside them."
-        tone="danger"
-      >
+      <Instructions
+        steps={[
+          "Pick the categories to clear.",
+          "Leaving it empty means all categories.",
+          "Type DELETE to confirm.",
+          "This cannot be undone.",
+        ]}
+      />
+
+      <Panel title="Categories to clear" tone="danger">
         {phase === "form" && (
           <>
             <CategoriesField
               value={categories}
               onChange={setCategories}
-              hint="Select one or more categories. Leave empty to target ALL categories."
+              hint="Existing categories come from Learning Suite. Leave empty to target ALL of them."
             />
 
-            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
+            <div className="danger-panel rounded-xl p-3">
               <p className="flex items-center gap-2 text-sm font-semibold text-destructive">
-                <AlertTriangle className="h-4 w-4" aria-hidden /> Destructive operation
+                <AlertTriangle className="h-4 w-4" aria-hidden /> Destructive
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Leaving Categories empty will clear <strong>ALL</strong> categories and their
-                properties.
+                An empty selection clears <strong>ALL</strong> categories and their properties.
               </p>
             </div>
 
-            <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
+            <Button
+              variant="destructive"
+              onClick={() => setConfirmOpen(true)}
+              className="neo-raised rounded-xl"
+            >
               Clear Properties
             </Button>
           </>
@@ -150,9 +158,9 @@ function PropertyTools() {
           if (!open) setConfirmText("");
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="glass-panel rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear Properties?</AlertDialogTitle>
+            <AlertDialogTitle>Clear properties?</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm">
                 {wipeAll ? (
@@ -172,20 +180,20 @@ function PropertyTools() {
                     </ul>
                   </>
                 )}
-                <p>This action modifies Learning Suite and cannot be undone.</p>
+                <p>This changes Learning Suite and cannot be undone.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <TypeToConfirm value={confirmText} onChange={setConfirmText} />
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={run}
+              onClick={() => void run()}
               disabled={!isConfirmed(confirmText)}
-              className="disabled:pointer-events-none disabled:opacity-40 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:pointer-events-none disabled:opacity-40"
             >
-              {wipeAll ? "Clear EVERYTHING" : "Clear Properties"}
+              Clear Properties
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
