@@ -187,8 +187,12 @@ uploadDocument(payload: UploadDocumentPayload) {
     ]).then((result) => ({ ...result, agentName: result.agentName ?? payload.agentName }));
   },
 
-  /** Existing combined upload + assistant workflow (unchanged field order). */
-  createEverything(payload: CreateFormAssistantPayload) {
+  /**
+   * Existing combined upload + assistant workflow (unchanged field order),
+   * plus the additional JSON webhook receiving the document source.
+   */
+  async createEverything(payload: CreateFormAssistantPayload) {
+    await submitCombinedJson(payload);
     return submitWorkflow("combinedCreation", [
       payload.sourceType === "google_doc" ? (payload.googleDocLink ?? "") : "",
       "",
@@ -197,6 +201,7 @@ uploadDocument(payload: UploadDocumentPayload) {
       payload.agentName,
       payload.sourceType === "file" ? (payload.file ?? "") : "",
     ]).then((result) => ({
+
       ...result,
       agentName: result.agentName ?? payload.agentName,
       documentName: result.documentName ?? payload.file?.name,
