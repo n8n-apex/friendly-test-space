@@ -14,11 +14,16 @@ export type WorkflowKey =
   | "propertySummaryEmailer"
   | "uploadDocument"
   | "assistantCreation"
-  | "combinedCreation";
+  | "combinedCreation"
+  | "combinedCreationJson";
 
 /** Existing combined "upload document + create assistant" workflow. */
 export const EXISTING_COMBINED_WORKFLOW_URL =
   "https://apexcnsltng.app.n8n.cloud/form/ecdf6bad-28b0-43df-8920-9f95507b1358";
+
+/** Additional JSON webhook that receives "Google Doc Link" / "File". */
+export const COMBINED_JSON_WORKFLOW_URL =
+  "https://apexcnsltng.app.n8n.cloud/webhook-test/5416d3fd-0615-4159-9409-1d6be17a6abc";
 
 export const DEFAULT_N8N_ENDPOINTS: Record<WorkflowKey, string> = {
   propertyCleaner: "https://apexcnsltng.app.n8n.cloud/form/3e548c92-4df0-4de4-827d-52a759481784",
@@ -27,7 +32,9 @@ export const DEFAULT_N8N_ENDPOINTS: Record<WorkflowKey, string> = {
   uploadDocument: "https://apexcnsltng.app.n8n.cloud/form/7066a383-810f-48e7-bffe-04b61e2fca98",
   assistantCreation: "https://apexcnsltng.app.n8n.cloud/form/faf1c589-95bf-4193-abb5-7f044d20af2e",
   combinedCreation: EXISTING_COMBINED_WORKFLOW_URL,
+  combinedCreationJson: COMBINED_JSON_WORKFLOW_URL,
 };
+
 
 export const WORKFLOW_LABELS: Record<WorkflowKey, string> = {
   propertyCleaner: "Property Cleaner",
@@ -35,6 +42,8 @@ export const WORKFLOW_LABELS: Record<WorkflowKey, string> = {
   uploadDocument: "Upload Document",
   assistantCreation: "Assistant Creation",
   combinedCreation: "Combined Creation",
+  combinedCreationJson: "Combined Creation (JSON)",
+
 };
 
 const STORAGE_KEY = "ls-ops.endpoints";
