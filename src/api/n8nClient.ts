@@ -98,6 +98,66 @@ async function submitWorkflow(
   return { ...data, success: true, raw: text.slice(0, 4000) };
 }
 
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("The file could not be read."));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Posts the document source to the additional JSON webhook using the
+ * exact key names n8n expects: "Google Doc Link" and "File".
+ */
+async function submitCombinedJson(payload: CreateFormAssistantPayload): Promise<void> {
+  const url = getEndpoint("combinedCreationJson");
+  if (!url) return;
+
+  const body: Record<string, unknown> = {
+    "Google Doc Link": payload.sourceType === "google_doc" ? (payload.googleDocLink ?? null) : null,
+    File: null,
+  };
+
+  if (payload.sourceType === "file" && payload.file) {
+    body["File"] = {
+      name: payload.file.name,
+      mimeType: payload.file.type || "application/octet-stream",
+      size: payload.file.size,
+      data: await fileToDataUrl(payload.file),
+    };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new WorkflowError(
+        `The document webhook returned an error (HTTP ${response.status}).`,
+        text.slice(0, 4000),
+      );
+    }
+  } catch (error) {
+    if (error instanceof WorkflowError) throw error;
+    throw new WorkflowError(
+      "The document webhook could not be reached.",
+      error instanceof Error ? `${error.message} · ${url}` : String(error),
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+
+
 export const n8nClient = {
   /** Categories empty => clears ALL categories (destructive). */
   propertyCleaner(categories: string) {
