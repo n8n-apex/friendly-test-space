@@ -1,4 +1,5 @@
 import { getEndpoint, type WorkflowKey } from "@/config/n8n";
+import { forwardCombinedDocument } from "@/lib/combined-json.functions";
 import type {
   CreateFormAssistantPayload,
   UploadDocumentPayload,
