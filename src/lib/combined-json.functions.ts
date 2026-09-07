@@ -45,17 +45,38 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
 
     // The workflow may take a while; 180s is only an upper bound and the
     // request is retried once for transient network failures / cold starts.
-    const post = async () =>
-      fetch(url, {
+    const buildBody = () => {
+      const file = data.File;
+      if (!file) {
+        return {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        };
+      }
+      // Send the actual file bytes (binary multipart), not a data URL.
+      const base64 = file.data.includes(",") ? file.data.slice(file.data.indexOf(",") + 1) : file.data;
+      const binary = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+      const form = new FormData();
+      form.append("Google Doc Link", data["Google Doc Link"] ?? "");
+      form.append("File", new File([binary], file.name, { type: file.mimeType || "application/octet-stream" }));
+      // Let fetch set the multipart boundary itself.
+      return { headers: {} as Record<string, string>, body: form };
+    };
+
+    const post = async () => {
+      const { headers, body } = buildBody();
+      return fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          ...headers,
           "X-Custom-Key": key,
           Accept: "application/json",
         },
-        body: JSON.stringify(data),
+        body,
         signal: AbortSignal.timeout(180_000),
       });
+    };
+
 
     let response: Response;
     try {
