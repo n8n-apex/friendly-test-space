@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
-import { AppShell } from "@/components/ops/AppShell";
+import { AppShell, Instructions } from "@/components/ops/AppShell";
 import {
   CategoriesField,
   SourceTabs,
@@ -61,31 +61,26 @@ export const Route = createFileRoute("/create-everything")({
 type Phase = "form" | "running" | "success" | "error";
 
 function CreateEverything() {
-  const [agentName, setAgentName] = useState("");
-  const [categories, setCategories] = useState("");
   const [sourceType, setSourceType] = useState<SourceType>("file");
   const [file, setFile] = useState<File | null>(null);
   const [docLink, setDocLink] = useState("");
+  const [categories, setCategories] = useState("");
+  const [agentName, setAgentName] = useState("");
   const [wipe, setWipe] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
-  const [wipeCompleted, setWipeCompleted] = useState(false);
-  const [wipeFailed, setWipeFailed] = useState(false);
   const [result, setResult] = useState<WorkflowResult | null>(null);
-  const [wipeResult, setWipeResult] = useState<WorkflowResult | null>(null);
   const [error, setError] = useState<WorkflowErrorState | null>(null);
   const steps = useSteps(COMBINED_STEPS);
 
   const parsed = parseCategories(categories);
   const sourceReady = sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
-  const canSubmit =
-    agentName.trim().length > 0 && sourceReady && (wipe || parsed.length > 0);
+  const canSubmit = sourceReady && agentName.trim().length > 0 && (wipe || parsed.length > 0);
 
   const activeSteps = wipe ? [WIPE_STEP, ...COMBINED_STEPS] : COMBINED_STEPS;
 
   const start = () => {
-    // Empty categories + wipe = destructive "delete all" — require confirmation.
     if (wipe) {
       setConfirmOpen(true);
       return;
@@ -97,9 +92,6 @@ function CreateEverything() {
     setConfirmOpen(false);
     setConfirmText("");
     setPhase("running");
-    setWipeFailed(false);
-    setWipeCompleted(false);
-    setWipeResult(null);
     steps.start(activeSteps, activeSteps.length - 1);
 
     const payload = {
@@ -112,19 +104,16 @@ function CreateEverything() {
     };
 
     if (wipe) {
-      // STEP 1 — wipe must fully succeed before the upload starts.
+      // STEP 1 — the wipe must fully succeed before the upload starts.
       steps.activate(0);
       steps.setRunning(false);
       try {
-        const cleaned = await n8nClient.propertyCleaner(payload.categories);
-        setWipeResult(cleaned);
-        setWipeCompleted(true);
+        await n8nClient.propertyCleaner(payload.categories);
       } catch (workflowError) {
         steps.fail();
-        setWipeFailed(true);
         setError(toErrorState(workflowError, "The wipe step failed."));
         setPhase("error");
-        return; // never continue to the upload
+        return;
       }
       steps.activate(1);
       steps.setRunning(true);
@@ -146,168 +135,136 @@ function CreateEverything() {
     setPhase("form");
     setResult(null);
     setError(null);
-    setWipeFailed(false);
-    setWipeCompleted(false);
     steps.reset(activeSteps);
   };
 
   return (
     <AppShell
       title="Create Everything"
-      description="Upload the document to Learning Suite and configure the AI/Form Assistant in one operation."
+      description="One run: send the document, update the categories and configure the AI/Form Assistant."
     >
-      <div className="app-bg -m-2 rounded-3xl p-2">
-        <ol className="glass-panel animate-fade-up mb-5 grid gap-2 rounded-2xl p-4 text-sm sm:grid-cols-2">
-          <li className="flex gap-2">
-            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
-              1
-            </span>
-            Name the AI Agent.
-          </li>
-          <li className="flex gap-2">
-            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
-              2
-            </span>
-            Pick the categories to fill.
-          </li>
-          <li className="flex gap-2">
-            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
-              3
-            </span>
-            Add a Google Doc link or upload a file.
-          </li>
-          <li className="flex gap-2">
-            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
-              4
-            </span>
-            Wipe first only if the categories should be emptied.
-          </li>
-        </ol>
+      <Instructions
+        steps={[
+          "Add the document first — it decides the categories.",
+          "Check the categories: existing ones come from Learning Suite, new ones from your document.",
+          "Name the AI Agent.",
+          "Turn on the wipe only if the categories should be emptied first.",
+        ]}
+      />
 
-        <section className="neo-panel animate-fade-up rounded-2xl p-5 sm:p-6">
-          <h2 className="text-sm font-semibold tracking-tight">Combined upload + assistant</h2>
-          <div className="mt-5 space-y-5">
-            {phase === "form" && (
-              <>
+      <section className="neo-panel animate-fade-up rounded-2xl p-5 sm:p-6">
+        <h2 className="text-sm font-semibold tracking-tight">Document, categories & assistant</h2>
+        <div className="mt-5 space-y-5">
+          {phase === "form" && (
+            <>
+              <SourceTabs value={sourceType} onChange={setSourceType} />
+
+              {sourceType === "file" ? (
                 <div>
-                  <Label htmlFor="combined-agent">AI Agent Name</Label>
-                  <Input
-                    id="combined-agent"
-                    value={agentName}
-                    onChange={(event) => setAgentName(event.target.value)}
-                    placeholder="Marketing Thesis Assistant"
-                    className="neo-inset mt-1.5 border-0"
-                  />
+                  <Label>Document</Label>
+                  <div className="mt-1.5">
+                    <FileDropzone file={file} onChange={setFile} />
+                  </div>
                 </div>
-
-                <CategoriesField
-                  value={categories}
-                  onChange={setCategories}
-                  hint="Select one or more categories. The same selection is used for the wipe step when enabled."
-                />
-
-                <SourceTabs value={sourceType} onChange={setSourceType} />
-
-                {sourceType === "file" ? (
-                  <div>
-                    <Label>Document</Label>
-                    <div className="neo-inset mt-1.5 rounded-xl p-1">
-                      <FileDropzone file={file} onChange={setFile} />
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <Label htmlFor="combined-doc-link">Google Doc Link</Label>
-                    <Input
-                      id="combined-doc-link"
-                      type="url"
-                      inputMode="url"
-                      value={docLink}
-                      onChange={(event) => setDocLink(event.target.value)}
-                      placeholder="https://docs.google.com/document/d/..."
-                      className="neo-inset mt-1.5 border-0 font-mono text-sm"
-                    />
-                    {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
-                      <p className="mt-1.5 text-xs text-destructive">
-                        The link must start with https://docs.google.com/.
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="glass-inset rounded-xl p-3">
-                  <div className="flex items-center justify-between gap-4">
-                    <Label htmlFor="wipe-toggle" className="text-sm">
-                      Wipe categories before upload
-                    </Label>
-                    <Switch id="wipe-toggle" checked={wipe} onCheckedChange={setWipe} />
-                  </div>
-                  {wipe && (
-                    <p className="mt-2 flex gap-2 text-sm text-destructive">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                      <span>
-                        This will clear the selected categories before the document is uploaded. If
-                        Categories is empty, ALL categories will be cleared.
-                      </span>
+              ) : (
+                <div>
+                  <Label htmlFor="combined-doc-link">Google Doc link</Label>
+                  <Input
+                    id="combined-doc-link"
+                    type="url"
+                    inputMode="url"
+                    value={docLink}
+                    onChange={(event) => setDocLink(event.target.value)}
+                    placeholder="https://docs.google.com/document/d/..."
+                    className="neo-inset mt-1.5 rounded-xl border-0 font-mono text-sm"
+                  />
+                  {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
+                    <p className="mt-1.5 text-xs text-destructive">
+                      The link must start with https://docs.google.com/.
                     </p>
                   )}
                 </div>
+              )}
 
-                <Button disabled={!canSubmit} onClick={start} className="neo-raised rounded-xl">
-                  Create Everything
-                </Button>
-              </>
-            )}
-
-
-            {phase === "running" && (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Creating Everything…</p>
-                <StepList steps={steps.steps} />
-              </div>
-            )}
-
-            {phase === "success" && result && (
-              <ResultPanel
-                title="Operation completed"
-                rows={[
-                  { label: "AI Agent", value: result.agentName },
-                  { label: "Document", value: result.documentName ?? file?.name },
-                  { label: "Categories processed", value: result.categoriesProcessed },
-                  { label: "Properties created", value: result.propertiesCreated },
-                  { label: "Properties updated", value: result.propertiesUpdated },
-                  { label: "Form Assistant properties", value: result.formAssistantFields },
-                  { label: "Warnings", value: result.warnings },
-                  ...(wipeCompleted
-                    ? [
-                        { label: "Wipe", value: "Completed" },
-                        { label: "Categories cleared", value: wipeResult?.categoriesCleared },
-                      ]
-                    : []),
-                ]}
-                onReset={reset}
+              <CategoriesField
+                value={categories}
+                onChange={setCategories}
+                disabled={!sourceReady}
+                disabledHint="Add the document first — then pick its categories."
+                hint="Existing categories come from Learning Suite. Add any extra one you found in the document."
               />
-            )}
 
-            {phase === "error" && (
-              <div className="space-y-4">
-                <StepList steps={steps.steps} />
-                <ErrorPanel
-                  title={wipeFailed ? "Wipe failed" : "Unable to complete the operation."}
-                  message={
-                    wipeFailed
-                      ? `The document upload was NOT started. ${error?.message ?? ""}`
-                      : error?.message
-                  }
-                  details={error?.details}
-                  onRetry={reset}
+              <div>
+                <Label htmlFor="combined-agent">AI Agent name</Label>
+                <Input
+                  id="combined-agent"
+                  value={agentName}
+                  onChange={(event) => setAgentName(event.target.value)}
+                  placeholder="Marketing Thesis Assistant"
+                  className="neo-inset mt-1.5 rounded-xl border-0"
                 />
               </div>
-            )}
-          </div>
-        </section>
-      </div>
 
+              <div className="glass-inset rounded-xl p-3">
+                <div className="flex items-center justify-between gap-4">
+                  <Label htmlFor="wipe-toggle" className="text-sm">
+                    Wipe categories before the upload
+                  </Label>
+                  <Switch id="wipe-toggle" checked={wipe} onCheckedChange={setWipe} />
+                </div>
+                {wipe && (
+                  <p className="mt-2 flex gap-2 text-sm text-destructive">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                    <span>
+                      The selected categories are cleared first. With none selected, ALL categories
+                      are cleared.
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              <Button disabled={!canSubmit} onClick={start} className="neo-raised rounded-xl">
+                Create Everything
+              </Button>
+            </>
+          )}
+
+          {phase === "running" && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Running. You can keep this tab open.</p>
+              <StepList steps={steps.steps} />
+            </div>
+          )}
+
+          {phase === "success" && result && (
+            <ResultPanel
+              title="Everything created"
+              rows={[
+                { label: "Document", value: result.documentName ?? file?.name },
+                { label: "Agent", value: result.agentName ?? agentName },
+                { label: "Categories", value: result.categoriesProcessed ?? parsed.length },
+                { label: "Properties created", value: result.propertiesCreated },
+                { label: "Properties updated", value: result.propertiesUpdated },
+                { label: "Form Assistant properties", value: result.formAssistantFields },
+                { label: "Warnings", value: result.warnings },
+              ]}
+              onReset={reset}
+            />
+          )}
+
+          {phase === "error" && (
+            <div className="space-y-4">
+              <StepList steps={steps.steps} />
+              <ErrorPanel
+                title="The combined operation did not finish."
+                message={error?.message}
+                details={error?.details}
+                onRetry={reset}
+              />
+            </div>
+          )}
+        </div>
+      </section>
 
       <AlertDialog
         open={confirmOpen}
@@ -316,22 +273,19 @@ function CreateEverything() {
           if (!open) setConfirmText("");
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="glass-panel rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {parsed.length === 0 ? "⚠ WIPE EVERYTHING" : "Wipe categories & continue?"}
+              {parsed.length === 0 ? "Wipe everything?" : "Wipe categories & continue?"}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm">
                 {parsed.length === 0 ? (
                   <>
-                    <p>Categories is empty.</p>
-                    <p>
-                      The wipe step will remove ALL Learning Suite categories and their properties
-                      before the document is uploaded.
-                    </p>
+                    <p>No categories are selected.</p>
                     <p className="font-semibold text-destructive">
-                      This cannot be treated as a normal empty selection.
+                      ALL Learning Suite categories and their properties will be removed before the
+                      upload.
                     </p>
                   </>
                 ) : (
@@ -351,13 +305,13 @@ function CreateEverything() {
 
           <TypeToConfirm value={confirmText} onChange={setConfirmText} id="confirm-wipe" />
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => void run()}
               disabled={!isConfirmed(confirmText)}
-              className="disabled:pointer-events-none disabled:opacity-40 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:pointer-events-none disabled:opacity-40"
             >
-              {parsed.length === 0 ? "Wipe Everything & Continue" : "Wipe & Continue"}
+              Wipe & Continue
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
