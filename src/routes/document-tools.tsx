@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell, Panel } from "@/components/ops/AppShell";
+import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { SourceTabs, isValidGoogleDocUrl } from "@/components/ops/CategoriesField";
 import { FileDropzone } from "@/components/FileDropzone";
 import { StepList } from "@/components/ops/StepList";
@@ -16,16 +16,16 @@ import { UPLOAD_STEPS, type SourceType, type WorkflowResult } from "@/types/work
 export const Route = createFileRoute("/document-tools")({
   head: () => ({
     meta: [
-      { title: "Upload Document · Learning Suite Operations" },
+      { title: "Document Tools · Learning Suite Operations" },
       {
         name: "description",
         content:
-          "Upload a file or Google Doc so the existing automation creates and updates Learning Suite properties.",
+          "Upload a document or Google Doc to Learning Suite and create or update the matching categories and properties.",
       },
-      { property: "og:title", content: "Upload Document · Learning Suite Operations" },
+      { property: "og:title", content: "Document Tools · Learning Suite Operations" },
       {
         property: "og:description",
-        content: "Send a document or Google Doc link to the Learning Suite property automation.",
+        content: "Run the Learning Suite document upload workflow from a file or Google Doc link.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -43,9 +43,7 @@ function DocumentTools() {
   const [error, setError] = useState<WorkflowErrorState | null>(null);
   const steps = useSteps(UPLOAD_STEPS);
 
-  const sourceReady =
-    sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
-  const canSubmit = sourceReady;
+  const canSubmit = sourceType === "file" ? file !== null : isValidGoogleDocUrl(docLink);
 
   const submit = async () => {
     setPhase("running");
@@ -76,24 +74,33 @@ function DocumentTools() {
 
   return (
     <AppShell
-      title="Upload Document to Learning Suite"
-      description="Extracts categories and properties from a document and creates or updates the matching Learning Suite fields."
+      title="Upload Document"
+      description="The document decides the categories and properties that get created or updated in Learning Suite."
     >
-      <Panel title="Document source">
+      <Instructions
+        steps={[
+          "Choose a file or a Google Doc link.",
+          "Add the document.",
+          "Start the upload.",
+          "The result lists what changed.",
+        ]}
+      />
+
+      <Panel title="Document">
         {phase === "form" && (
           <>
             <SourceTabs value={sourceType} onChange={setSourceType} />
 
             {sourceType === "file" ? (
               <div>
-                <Label>Upload File</Label>
+                <Label>File</Label>
                 <div className="mt-1.5">
                   <FileDropzone file={file} onChange={setFile} />
                 </div>
               </div>
             ) : (
               <div>
-                <Label htmlFor="doc-link">Google Doc Link</Label>
+                <Label htmlFor="doc-link">Google Doc link</Label>
                 <Input
                   id="doc-link"
                   type="url"
@@ -101,17 +108,17 @@ function DocumentTools() {
                   value={docLink}
                   onChange={(event) => setDocLink(event.target.value)}
                   placeholder="https://docs.google.com/document/d/..."
-                  className="mt-1.5 font-mono text-sm"
+                  className="neo-inset mt-1.5 rounded-xl border-0 font-mono text-sm"
                 />
                 {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
                   <p className="mt-1.5 text-xs text-destructive">
                     The link must start with https://docs.google.com/.
                   </p>
                 )}
-            </div>
+              </div>
             )}
 
-            <Button disabled={!canSubmit} onClick={submit}>
+            <Button disabled={!canSubmit} onClick={submit} className="neo-raised rounded-xl">
               Upload to Learning Suite
             </Button>
           </>
@@ -120,8 +127,7 @@ function DocumentTools() {
         {phase === "running" && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              The workflow is running. You can keep this tab open — the interface stays
-              responsive.
+              Running. You can keep this tab open.
             </p>
             <StepList steps={steps.steps} />
           </div>
@@ -129,7 +135,7 @@ function DocumentTools() {
 
         {phase === "success" && result && (
           <ResultPanel
-            title="Document processed successfully"
+            title="Document processed"
             rows={[
               { label: "Document", value: result.documentName ?? file?.name },
               { label: "Categories", value: result.categoriesProcessed },
