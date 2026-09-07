@@ -28,23 +28,23 @@ export function AppShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="app-bg min-h-screen text-foreground">
       <div className="flex min-h-screen flex-col lg:flex-row">
-        <aside className="border-b border-border bg-sidebar lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
-          <div className="px-4 py-4">
-            <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+        <aside className="glass-panel z-10 lg:m-3 lg:w-60 lg:shrink-0 lg:rounded-3xl">
+          <div className="px-5 py-4">
+            <p className="text-[11px] font-semibold tracking-[0.16em] text-muted-foreground uppercase">
               Learning Suite
             </p>
             <p className="text-sm font-semibold">Operations Console</p>
           </div>
-          <nav className="flex gap-1 overflow-x-auto px-2 pb-3 lg:flex-col lg:overflow-visible">
+          <nav className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
             {nav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to as never}
                 activeOptions={{ exact: item.to === "/" }}
-                activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }}
-                className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-foreground"
+                activeProps={{ className: "neo-inset font-medium text-foreground" }}
+                className="flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-all hover:text-foreground"
               >
                 <item.icon className="h-4 w-4" aria-hidden />
                 {item.label}
@@ -54,16 +54,32 @@ export function AppShell({
         </aside>
 
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">
-          <header className="mb-6 border-b border-border pb-4">
-            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          <header className="animate-fade-up mb-6">
+            <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
             {description && (
-              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>
+              <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{description}</p>
             )}
           </header>
-          <div className="max-w-3xl space-y-6">{children}</div>
+          <div className="max-w-3xl space-y-5">{children}</div>
         </main>
       </div>
     </div>
+  );
+}
+
+/** Compact numbered instructions — short lines only. */
+export function Instructions({ steps }: { steps: string[] }) {
+  return (
+    <ol className="glass-panel animate-fade-up grid gap-2 rounded-2xl p-4 text-sm sm:grid-cols-2">
+      {steps.map((step, index) => (
+        <li key={step} className="flex gap-2">
+          <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+            {index + 1}
+          </span>
+          <span className="text-muted-foreground">{step}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -81,12 +97,12 @@ export function Panel({
   return (
     <section
       className={
-        "rounded-md border bg-card p-5 " +
-        (tone === "danger" ? "border-destructive/40" : "border-border")
+        "animate-fade-up rounded-2xl p-5 sm:p-6 " +
+        (tone === "danger" ? "neo-panel ring-1 ring-destructive/25" : "neo-panel")
       }
     >
       <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
-      {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+      {description && <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>}
       <div className="mt-5 space-y-5">{children}</div>
     </section>
   );
