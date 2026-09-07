@@ -73,14 +73,12 @@ export function CategoriesField({
   const selected = useMemo(() => parseCategories(value), [value]);
   const suiteNames = useMemo(() => (data ?? []).map((category) => category.name), [data]);
   const documentNames = useMemo(
-    () =>
-      Array.from(
-        new Set([
-          ...documentCategories.filter((name) => !suiteNames.includes(name)),
-          ...selected.filter((name) => !suiteNames.includes(name)),
-        ]),
-      ),
-    [documentCategories, selected, suiteNames],
+    () => Array.from(new Set(documentCategories.map((name) => name.trim()).filter(Boolean))),
+    [documentCategories],
+  );
+  const customNames = useMemo(
+    () => selected.filter((name) => !suiteNames.includes(name) && !documentNames.includes(name)),
+    [documentNames, selected, suiteNames],
   );
 
 
@@ -164,7 +162,7 @@ export function CategoriesField({
                 {(documentNames.length > 0 || documentLoading || documentEmpty) && (
                   <>
                     <p className="flex items-center gap-1.5 px-2 pt-3 pb-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
-                      <FileText className="h-3 w-3" aria-hidden /> New from document
+                      <FileText className="h-3 w-3" aria-hidden /> Found in document
                     </p>
                     {documentLoading && (
                       <p className="flex items-center gap-2 px-2 py-2 text-sm text-muted-foreground">
@@ -179,6 +177,22 @@ export function CategoriesField({
                       </p>
                     )}
                     {documentNames.map((name) => (
+                      <Option
+                        key={name}
+                        name={name}
+                        selected={selected.includes(name)}
+                        onSelect={() => toggle(name)}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {customNames.length > 0 && (
+                  <>
+                    <p className="flex items-center gap-1.5 px-2 pt-3 pb-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      <Plus className="h-3 w-3" aria-hidden /> Added manually
+                    </p>
+                    {customNames.map((name) => (
                       <Option
                         key={name}
                         name={name}
@@ -232,14 +246,21 @@ export function CategoriesField({
       {selected.length > 0 && (
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {selected.map((category) => {
-            const fromDocument = !suiteNames.includes(category);
+            const fromSuite = suiteNames.includes(category);
+            const fromDocument = documentNames.includes(category) || !fromSuite;
             return (
               <button
                 key={category}
                 type="button"
                 onClick={() => toggle(category)}
                 aria-label={`Remove ${category}`}
-                title={fromDocument ? "New from document" : "Already in Learning Suite"}
+                title={
+                  fromSuite && fromDocument
+                    ? "Found in document and already in Learning Suite"
+                    : fromDocument
+                      ? "Found in document"
+                      : "Already in Learning Suite"
+                }
                 className={
                   "neo-chip flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] transition-transform hover:-translate-y-px " +
                   (fromDocument ? "text-foreground ring-1 ring-primary/25" : "text-muted-foreground")
