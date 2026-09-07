@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Database, Mail, FileUp, Bot, Layers, ArrowRight } from "lucide-react";
-import { AppShell } from "@/components/ops/AppShell";
+import { AppShell, Instructions } from "@/components/ops/AppShell";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,37 +35,36 @@ type ActionCard = {
 
 const actions: ActionCard[] = [
   {
-    to: "/property-tools",
-    icon: Database,
-    title: "Property Cleaner",
-    description: "Clear selected Learning Suite property categories.",
-    danger: true,
-  },
-  {
-    to: "/email-tools",
-    icon: Mail,
-    title: "Property Summary Emailer",
-    description: "Generate and send the property summary email.",
+    to: "/create-everything",
+    icon: Layers,
+    title: "Create Everything",
+    description: "Document, categories and assistant in one run. Optional wipe first.",
+    primary: true,
   },
   {
     to: "/document-tools",
     icon: FileUp,
     title: "Upload Document",
-    description: "Upload a document or Google Doc and create/update properties.",
+    description: "Send a document or Google Doc and update the matching properties.",
   },
   {
     to: "/ai-agents",
     icon: Bot,
     title: "Create Assistant",
-    description: "Create and configure an AI/Form Assistant from a document.",
+    description: "Build an AI/Form Assistant from a document.",
   },
   {
-    to: "/create-everything",
-    icon: Layers,
-    title: "Create Everything",
-    description:
-      "Upload the document and configure the AI/Form Assistant in one operation. Includes wipe before upload.",
-    primary: true,
+    to: "/email-tools",
+    icon: Mail,
+    title: "Summary Emailer",
+    description: "Send the property summary email to one recipient.",
+  },
+  {
+    to: "/property-tools",
+    icon: Database,
+    title: "Property Cleaner",
+    description: "Clear selected categories and their properties.",
+    danger: true,
   },
 ];
 
@@ -73,34 +72,43 @@ function Dashboard() {
   return (
     <AppShell
       title="Dashboard"
-      description="Run the existing Learning Suite automation workflows. Each action calls its n8n workflow directly."
+      description="Every action here runs an existing Learning Suite workflow."
     >
+      <Instructions
+        steps={[
+          "Pick the task you want to run.",
+          "Add the document first — it decides the categories.",
+          "Check the categories, then start.",
+          "Watch the steps and read the result.",
+        ]}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2">
         {actions.map((action) => (
           <Link
             key={action.to}
             to={action.to as never}
             className={
-              "group flex flex-col rounded-md border bg-card p-4 transition-colors hover:border-foreground/30 " +
-              (action.primary
-                ? "border-foreground/40 sm:col-span-2"
-                : action.danger
-                  ? "border-destructive/40"
-                  : "border-border")
+              "neo-panel animate-fade-up group flex flex-col rounded-2xl p-4 transition-transform hover:-translate-y-0.5 " +
+              (action.primary ? "sm:col-span-2" : "") +
+              (action.danger ? " ring-1 ring-destructive/20" : "")
             }
           >
             <div className="flex items-center gap-2">
-              <action.icon className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <span className="neo-inset flex h-8 w-8 items-center justify-center rounded-xl">
+                <action.icon className="h-4 w-4 text-muted-foreground" aria-hidden />
+              </span>
               <h2 className="text-sm font-semibold">{action.title}</h2>
               {action.danger && (
-                <span className="rounded border border-destructive/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-destructive uppercase">
+                <span className="danger-panel rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide text-destructive uppercase">
                   Destructive
                 </span>
               )}
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">{action.description}</p>
+            <p className="mt-2.5 text-sm text-muted-foreground">{action.description}</p>
             <span className="mt-4 flex items-center gap-1 text-xs font-medium text-foreground">
-              Open <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              Open{" "}
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
         ))}
