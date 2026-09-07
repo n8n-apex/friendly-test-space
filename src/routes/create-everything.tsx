@@ -156,78 +156,109 @@ function CreateEverything() {
       title="Create Everything"
       description="Upload the document to Learning Suite and configure the AI/Form Assistant in one operation."
     >
-      <Panel title="Combined upload + assistant">
-        {phase === "form" && (
-          <>
-            <div>
-              <Label htmlFor="combined-agent">AI Agent Name</Label>
-              <Input
-                id="combined-agent"
-                value={agentName}
-                onChange={(event) => setAgentName(event.target.value)}
-                placeholder="Marketing Thesis Assistant"
-                className="mt-1.5"
-              />
-            </div>
+      <div className="app-bg -m-2 rounded-3xl p-2">
+        <ol className="glass-panel animate-fade-up mb-5 grid gap-2 rounded-2xl p-4 text-sm sm:grid-cols-2">
+          <li className="flex gap-2">
+            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+              1
+            </span>
+            Name the AI Agent.
+          </li>
+          <li className="flex gap-2">
+            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+              2
+            </span>
+            Pick the categories to fill.
+          </li>
+          <li className="flex gap-2">
+            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+              3
+            </span>
+            Add a Google Doc link or upload a file.
+          </li>
+          <li className="flex gap-2">
+            <span className="neo-inset flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold">
+              4
+            </span>
+            Wipe first only if the categories should be emptied.
+          </li>
+        </ol>
 
-            <CategoriesField
-              value={categories}
-              onChange={setCategories}
-              hint="Select one or more categories. The same selection is used for the wipe step when enabled."
-            />
-
-            <SourceTabs value={sourceType} onChange={setSourceType} />
-
-            {sourceType === "file" ? (
-              <div>
-                <Label>Document</Label>
-                <div className="mt-1.5">
-                  <FileDropzone file={file} onChange={setFile} />
+        <section className="neo-panel animate-fade-up rounded-2xl p-5 sm:p-6">
+          <h2 className="text-sm font-semibold tracking-tight">Combined upload + assistant</h2>
+          <div className="mt-5 space-y-5">
+            {phase === "form" && (
+              <>
+                <div>
+                  <Label htmlFor="combined-agent">AI Agent Name</Label>
+                  <Input
+                    id="combined-agent"
+                    value={agentName}
+                    onChange={(event) => setAgentName(event.target.value)}
+                    placeholder="Marketing Thesis Assistant"
+                    className="neo-inset mt-1.5 border-0"
+                  />
                 </div>
-              </div>
-            ) : (
-              <div>
-                <Label htmlFor="combined-doc-link">Google Doc Link</Label>
-                <Input
-                  id="combined-doc-link"
-                  type="url"
-                  inputMode="url"
-                  value={docLink}
-                  onChange={(event) => setDocLink(event.target.value)}
-                  placeholder="https://docs.google.com/document/d/..."
-                  className="mt-1.5 font-mono text-sm"
+
+                <CategoriesField
+                  value={categories}
+                  onChange={setCategories}
+                  hint="Select one or more categories. The same selection is used for the wipe step when enabled."
                 />
-                {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
-                  <p className="mt-1.5 text-xs text-destructive">
-                    The link must start with https://docs.google.com/.
-                  </p>
+
+                <SourceTabs value={sourceType} onChange={setSourceType} />
+
+                {sourceType === "file" ? (
+                  <div>
+                    <Label>Document</Label>
+                    <div className="neo-inset mt-1.5 rounded-xl p-1">
+                      <FileDropzone file={file} onChange={setFile} />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="combined-doc-link">Google Doc Link</Label>
+                    <Input
+                      id="combined-doc-link"
+                      type="url"
+                      inputMode="url"
+                      value={docLink}
+                      onChange={(event) => setDocLink(event.target.value)}
+                      placeholder="https://docs.google.com/document/d/..."
+                      className="neo-inset mt-1.5 border-0 font-mono text-sm"
+                    />
+                    {docLink.length > 0 && !isValidGoogleDocUrl(docLink) && (
+                      <p className="mt-1.5 text-xs text-destructive">
+                        The link must start with https://docs.google.com/.
+                      </p>
+                    )}
+                  </div>
                 )}
-              </div>
+
+                <div className="glass-inset rounded-xl p-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="wipe-toggle" className="text-sm">
+                      Wipe categories before upload
+                    </Label>
+                    <Switch id="wipe-toggle" checked={wipe} onCheckedChange={setWipe} />
+                  </div>
+                  {wipe && (
+                    <p className="mt-2 flex gap-2 text-sm text-destructive">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                      <span>
+                        This will clear the selected categories before the document is uploaded. If
+                        Categories is empty, ALL categories will be cleared.
+                      </span>
+                    </p>
+                  )}
+                </div>
+
+                <Button disabled={!canSubmit} onClick={start} className="neo-raised rounded-xl">
+                  Create Everything
+                </Button>
+              </>
             )}
 
-            <div className="rounded-md border border-border p-3">
-              <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="wipe-toggle" className="text-sm">
-                  Wipe categories before upload
-                </Label>
-                <Switch id="wipe-toggle" checked={wipe} onCheckedChange={setWipe} />
-              </div>
-              {wipe && (
-                <p className="mt-2 flex gap-2 text-sm text-destructive">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                  <span>
-                    This will clear the selected categories before the document is uploaded. If
-                    Categories is empty, ALL categories will be cleared.
-                  </span>
-                </p>
-              )}
-            </div>
-
-            <Button disabled={!canSubmit} onClick={start}>
-              Create Everything
-            </Button>
-          </>
-        )}
 
         {phase === "running" && (
           <div className="space-y-3">
