@@ -260,51 +260,54 @@ function CreateEverything() {
             )}
 
 
-        {phase === "running" && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Creating Everything…</p>
-            <StepList steps={steps.steps} />
-          </div>
-        )}
+            {phase === "running" && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Creating Everything…</p>
+                <StepList steps={steps.steps} />
+              </div>
+            )}
 
-        {phase === "success" && result && (
-          <ResultPanel
-            title="Operation completed"
-            rows={[
-              { label: "AI Agent", value: result.agentName },
-              { label: "Document", value: result.documentName ?? file?.name },
-              { label: "Categories processed", value: result.categoriesProcessed },
-              { label: "Properties created", value: result.propertiesCreated },
-              { label: "Properties updated", value: result.propertiesUpdated },
-              { label: "Form Assistant properties", value: result.formAssistantFields },
-              { label: "Warnings", value: result.warnings },
-              ...(wipeCompleted
-                ? [
-                    { label: "Wipe", value: "Completed" },
-                    { label: "Categories cleared", value: wipeResult?.categoriesCleared },
-                  ]
-                : []),
-            ]}
-            onReset={reset}
-          />
-        )}
+            {phase === "success" && result && (
+              <ResultPanel
+                title="Operation completed"
+                rows={[
+                  { label: "AI Agent", value: result.agentName },
+                  { label: "Document", value: result.documentName ?? file?.name },
+                  { label: "Categories processed", value: result.categoriesProcessed },
+                  { label: "Properties created", value: result.propertiesCreated },
+                  { label: "Properties updated", value: result.propertiesUpdated },
+                  { label: "Form Assistant properties", value: result.formAssistantFields },
+                  { label: "Warnings", value: result.warnings },
+                  ...(wipeCompleted
+                    ? [
+                        { label: "Wipe", value: "Completed" },
+                        { label: "Categories cleared", value: wipeResult?.categoriesCleared },
+                      ]
+                    : []),
+                ]}
+                onReset={reset}
+              />
+            )}
 
-        {phase === "error" && (
-          <div className="space-y-4">
-            <StepList steps={steps.steps} />
-            <ErrorPanel
-              title={wipeFailed ? "Wipe failed" : "Unable to complete the operation."}
-              message={
-                wipeFailed
-                  ? `The document upload was NOT started. ${error?.message ?? ""}`
-                  : error?.message
-              }
-              details={error?.details}
-              onRetry={reset}
-            />
+            {phase === "error" && (
+              <div className="space-y-4">
+                <StepList steps={steps.steps} />
+                <ErrorPanel
+                  title={wipeFailed ? "Wipe failed" : "Unable to complete the operation."}
+                  message={
+                    wipeFailed
+                      ? `The document upload was NOT started. ${error?.message ?? ""}`
+                      : error?.message
+                  }
+                  details={error?.details}
+                  onRetry={reset}
+                />
+              </div>
+            )}
           </div>
-        )}
-      </Panel>
+        </section>
+      </div>
+
 
       <AlertDialog
         open={confirmOpen}
