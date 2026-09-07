@@ -124,8 +124,15 @@ function parseCategoryNames(text: string): string[] {
       const nested = value.flatMap((item) => unwrap(item));
       return nested.length > 0 ? nested : value;
     }
-    if (value && typeof value === "object" && "categories" in value) {
-      return unwrap((value as { categories: unknown }).categories);
+    if (value && typeof value === "object") {
+      const record = value as Record<string, unknown>;
+      // Accept { categories }, { output: { categories } }, { data: ... }, etc.
+      for (const key of ["categories", "output", "data", "json", "result", "body"]) {
+        if (key in record) {
+          const nested = unwrap(record[key]);
+          if (nested.length > 0) return nested;
+        }
+      }
     }
     return [];
   };
