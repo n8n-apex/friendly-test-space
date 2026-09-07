@@ -148,7 +148,7 @@ export function CategoriesField({
                   ))
                 )}
 
-                {(documentNames.length > 0 || documentLoading) && (
+                {(documentNames.length > 0 || documentLoading || documentEmpty) && (
                   <>
                     <p className="flex items-center gap-1.5 px-2 pt-3 pb-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
                       <FileText className="h-3 w-3" aria-hidden /> New from document
@@ -156,6 +156,11 @@ export function CategoriesField({
                     {documentLoading && (
                       <p className="px-2 py-2 text-sm text-muted-foreground">
                         Reading the document…
+                      </p>
+                    )}
+                    {!documentLoading && documentEmpty && documentNames.length === 0 && (
+                      <p className="px-2 py-2 text-sm text-muted-foreground">
+                        The document did not return any categories. Add them below.
                       </p>
                     )}
                     {documentNames.map((name) => (
@@ -168,6 +173,7 @@ export function CategoriesField({
                     ))}
                   </>
                 )}
+
               </div>
             )}
 
