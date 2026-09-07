@@ -80,5 +80,37 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
       throw new Error(`The document webhook returned an error (HTTP ${response.status}).`);
     }
 
-    return { success: true as const };
+    const text = await response.text();
+    return { success: true as const, categories: parseCategoryNames(text) };
   });
+
+/** Accepts { categories: [...] }, [ { categories: [...] } ] or a plain array. */
+function parseCategoryNames(text: string): string[] {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    return [];
+  }
+  const unwrap = (value: unknown): unknown[] => {
+    if (Array.isArray(value)) {
+      if (value.length > 0 && value.every((item) => typeof item === "string")) return value;
+      const nested = value.flatMap((item) => unwrap(item));
+      return nested.length > 0 ? nested : value;
+    }
+    if (value && typeof value === "object" && "categories" in value) {
+      return unwrap((value as { categories: unknown }).categories);
+    }
+    return [];
+  };
+
+  const names = unwrap(payload).map((item) => {
+    if (typeof item === "string") return item.trim();
+    if (item && typeof item === "object" && "name" in item) {
+      return String((item as { name: unknown }).name ?? "").trim();
+    }
+    return "";
+  });
+
+  return Array.from(new Set(names.filter((name) => name.length > 0)));
+}
