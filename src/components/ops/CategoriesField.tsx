@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, ChevronsUpDown, FileText, Loader2, Plus, Database, X } from "lucide-react";
@@ -52,6 +52,19 @@ export function CategoriesField({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  // Reading a document can take 30s–2min, so show the wait instead of a silent spinner.
+  const [waited, setWaited] = useState(0);
+  useEffect(() => {
+    if (!documentLoading) {
+      setWaited(0);
+      return;
+    }
+    const started = Date.now();
+    const timer = window.setInterval(() => {
+      setWaited(Math.floor((Date.now() - started) / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [documentLoading]);
   const fetchCategories = useServerFn(listCategories);
   const { data, isPending, isFetching, isError, refetch } = useQuery(
     categoriesQueryOptions(fetchCategories),
