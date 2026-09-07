@@ -99,7 +99,8 @@ function CreateEverything() {
     staleTime: Infinity,
     gcTime: Infinity,
     refetchOnWindowFocus: false,
-    retry: 1,
+    // The read can take up to 2 minutes; never queue a second full wait.
+    retry: false,
   });
 
   const activeSteps = wipe ? [WIPE_STEP, ...COMBINED_STEPS] : COMBINED_STEPS;
