@@ -17,18 +17,18 @@ export function ResultPanel({
   const visible = rows.filter((row) => row.value !== undefined && row.value !== "");
 
   return (
-    <div className="rounded-md border border-border p-4">
+    <div className="glass-panel animate-fade-up rounded-2xl p-4">
       <div className="flex items-center gap-2 text-sm font-semibold">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-background">
-          <Check className="h-3 w-3" aria-hidden />
+        <span className="neo-raised flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background">
+          <Check className="h-3.5 w-3.5" aria-hidden />
         </span>
         {title}
       </div>
 
       {visible.length > 0 ? (
-        <dl className="mt-4 divide-y divide-border border-t border-border text-sm">
+        <dl className="neo-inset mt-4 space-y-1 rounded-xl p-2 text-sm">
           {visible.map((row) => (
-            <div key={row.label} className="flex justify-between gap-4 py-2">
+            <div key={row.label} className="flex justify-between gap-4 px-2 py-1.5">
               <dt className="text-muted-foreground">{row.label}</dt>
               <dd className="font-medium tabular-nums">{row.value}</dd>
             </div>
@@ -36,11 +36,11 @@ export function ResultPanel({
         </dl>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">
-          The workflow completed. It did not return machine-readable values.
+          The workflow finished. It did not return any values to display.
         </p>
       )}
 
-      <Button className="mt-4" size="sm" variant="outline" onClick={onReset}>
+      <Button className="neo-raised mt-4 rounded-xl" size="sm" variant="ghost" onClick={onReset}>
         {resetLabel}
       </Button>
     </div>
