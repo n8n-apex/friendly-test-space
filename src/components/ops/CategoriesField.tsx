@@ -167,8 +167,10 @@ export function CategoriesField({
                       <FileText className="h-3 w-3" aria-hidden /> New from document
                     </p>
                     {documentLoading && (
-                      <p className="px-2 py-2 text-sm text-muted-foreground">
-                        Reading the document…
+                      <p className="flex items-center gap-2 px-2 py-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                        Reading the document… this usually takes 30 seconds to 2 minutes
+                        {waited > 0 ? ` (${waited}s)` : ""}
                       </p>
                     )}
                     {!documentLoading && documentEmpty && documentNames.length === 0 && (
