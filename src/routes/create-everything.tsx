@@ -220,6 +220,17 @@ function CreateEverything() {
                 </div>
               )}
 
+              {documentCategoriesQuery.isFetching && (
+                <p
+                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                  Reading the document — this usually takes 30 seconds to 2 minutes.
+                </p>
+              )}
+
               <CategoriesField
                 value={categories}
                 onChange={setCategories}
