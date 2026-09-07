@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell, Panel } from "@/components/ops/AppShell";
+import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { StepList } from "@/components/ops/StepList";
 import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
 import { ResultPanel } from "@/components/ops/ResultRows";
@@ -11,6 +11,8 @@ import { n8nClient } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import { EMAILER_STEPS, type WorkflowResult } from "@/types/workflow";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export const Route = createFileRoute("/email-tools")({
   head: () => ({
     meta: [
@@ -18,12 +20,12 @@ export const Route = createFileRoute("/email-tools")({
       {
         name: "description",
         content:
-          "Send the Learning Suite property summary email to a validated recipient address via the existing workflow.",
+          "Generate the Learning Suite property summary and email it to a chosen recipient.",
       },
       { property: "og:title", content: "Email Tools · Learning Suite Operations" },
       {
         property: "og:description",
-        content: "Generate and send the Learning Suite property summary email.",
+        content: "Run the Learning Suite property summary emailer workflow.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -31,8 +33,6 @@ export const Route = createFileRoute("/email-tools")({
   }),
   component: EmailTools,
 });
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function EmailTools() {
   const [email, setEmail] = useState("");
@@ -69,13 +69,17 @@ function EmailTools() {
   return (
     <AppShell
       title="Property Summary Emailer"
-      description="Generates the Learning Suite property summary and emails it to the recipient."
+      description="Builds the current property summary and emails it to one recipient."
     >
-      <Panel title="Send property summary">
+      <Instructions
+        steps={["Enter the recipient address.", "Send, then check the result."]}
+      />
+
+      <Panel title="Recipient">
         {phase === "form" && (
           <>
             <div>
-              <Label htmlFor="recipient">Recipient Email</Label>
+              <Label htmlFor="recipient">Email address</Label>
               <Input
                 id="recipient"
                 type="email"
@@ -85,15 +89,13 @@ function EmailTools() {
                 onBlur={() => setTouched(true)}
                 placeholder="example@email.com"
                 aria-invalid={touched && !valid}
-                className="mt-1.5"
+                className="neo-inset mt-1.5 rounded-xl border-0"
               />
               {touched && !valid && (
-                <p className="mt-1.5 text-xs text-destructive">
-                  Enter a valid email address.
-                </p>
+                <p className="mt-1.5 text-xs text-destructive">Enter a valid email address.</p>
               )}
             </div>
-            <Button disabled={!valid} onClick={submit}>
+            <Button disabled={!valid} onClick={submit} className="neo-raised rounded-xl">
               Send Property Summary
             </Button>
           </>
