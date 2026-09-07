@@ -35,6 +35,7 @@ export function CategoriesField({
   disabledHint,
   documentCategories = [],
   documentLoading = false,
+  documentEmpty = false,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -45,6 +46,9 @@ export function CategoriesField({
   /** Categories detected inside the uploaded document / Google Doc. */
   documentCategories?: string[];
   documentLoading?: boolean;
+  /** The document was read but no categories came back. */
+  documentEmpty?: boolean;
+
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
