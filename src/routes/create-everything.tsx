@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
-import { AppShell, Panel } from "@/components/ops/AppShell";
+import { AppShell } from "@/components/ops/AppShell";
 import {
   CategoriesField,
   SourceTabs,
