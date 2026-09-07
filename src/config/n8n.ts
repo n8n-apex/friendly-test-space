@@ -42,6 +42,8 @@ export const WORKFLOW_LABELS: Record<WorkflowKey, string> = {
   uploadDocument: "Upload Document",
   assistantCreation: "Assistant Creation",
   combinedCreation: "Combined Creation",
+  combinedCreationJson: "Combined Creation (JSON)",
+
 };
 
 const STORAGE_KEY = "ls-ops.endpoints";
