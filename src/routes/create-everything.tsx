@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { AppShell, Instructions } from "@/components/ops/AppShell";
+import { About, AppShell, Instructions } from "@/components/ops/AppShell";
 import {
   CategoriesField,
   SourceTabs,
@@ -177,6 +177,28 @@ function CreateEverything() {
       title="Create Everything"
       description="One run: send the document, update the categories and configure the AI/Form Assistant."
     >
+      <About
+        what="The full run in one go: the document is uploaded, categories and fields are created or updated, and the AI Agent plus its Form Assistant are configured. Optionally the categories are emptied first."
+        notes={[
+          {
+            q: "My document has no categories",
+            a: "Just pick the ones you need from the Learning Suite list, or type your own in the picker.",
+          },
+          {
+            q: "Reading the document is slow",
+            a: "Expect 30 seconds to 2 minutes. The picker shows the elapsed time while it reads.",
+          },
+          {
+            q: "What does the wipe do?",
+            a: "It clears the selected categories before the upload — with none selected, all of them. You must type DELETE.",
+          },
+          {
+            q: "Something failed halfway",
+            a: "The steps show where it stopped. Fix that point and start again; the wipe always runs before the upload.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={[
           "Add the document first — it decides the categories.",

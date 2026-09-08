@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
+import { About, AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { SourceTabs, isValidGoogleDocUrl } from "@/components/ops/CategoriesField";
 import { FileDropzone } from "@/components/FileDropzone";
 import { StepList } from "@/components/ops/StepList";
@@ -77,6 +77,28 @@ function DocumentTools() {
       title="Upload Document"
       description="The document decides the categories and properties that get created or updated in Learning Suite."
     >
+      <About
+        what="Sends one document to Learning Suite. The workflow reads it and creates or updates the categories and fields it finds — you do not pick anything here."
+        notes={[
+          {
+            q: "My document has no categories",
+            a: "Then nothing new is created. The result will simply show 0 categories, so add headings to the document and run it again.",
+          },
+          {
+            q: "Will it overwrite my fields?",
+            a: "Existing fields are updated, not deleted. Use Property Cleaner if you really want to remove things.",
+          },
+          {
+            q: "Which files work?",
+            a: "A text-based document (for example .docx or .pdf) or a Google Doc link that is readable.",
+          },
+          {
+            q: "It takes a while",
+            a: "Reading and matching can run for a couple of minutes. Keep the page open until the steps finish.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={[
           "Choose a file or a Google Doc link.",

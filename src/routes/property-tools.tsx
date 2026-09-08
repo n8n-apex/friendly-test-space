@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
-import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
+import { About, AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { CategoriesField, parseCategories } from "@/components/ops/CategoriesField";
 import { StepList } from "@/components/ops/StepList";
 import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
@@ -86,6 +86,28 @@ function PropertyTools() {
       title="Property Cleaner"
       description="Clears Learning Suite categories and the properties inside them."
     >
+      <About
+        what="Empties Learning Suite categories: the category stays, the fields inside it are removed. Use it before a fresh upload when old fields should not stick around."
+        notes={[
+          {
+            q: "What if I select nothing?",
+            a: "Everything is cleared — all categories and all their fields. Only do that on purpose.",
+          },
+          {
+            q: "Can I undo it?",
+            a: "No. Deleted fields are gone, which is why you have to type DELETE first.",
+          },
+          {
+            q: "I only see Learning Suite categories",
+            a: "Correct — this page works on what already exists, so no document is needed.",
+          },
+          {
+            q: "Does it touch learner data?",
+            a: "It removes the fields themselves, so anything stored in them disappears with them.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={[
           "Pick the categories to clear.",
