@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Database, Mail, FileUp, Bot, Layers, ArrowRight } from "lucide-react";
-import { AppShell, Instructions } from "@/components/ops/AppShell";
+import { About, AppShell, Instructions } from "@/components/ops/AppShell";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -74,6 +74,28 @@ function Dashboard() {
       title="Dashboard"
       description="Every action here runs an existing Learning Suite workflow."
     >
+      <About
+        what="A control panel for the existing Learning Suite workflows. Each page below runs one of them and shows the progress and the result."
+        notes={[
+          {
+            q: "Where do I start?",
+            a: "Create Everything covers the whole flow. The other pages run a single part of it.",
+          },
+          {
+            q: "Which pages delete things?",
+            a: "Only Property Cleaner, and the optional wipe inside Create Everything. Both ask you to type DELETE.",
+          },
+          {
+            q: "Where do categories come from?",
+            a: "From Learning Suite, plus anything found in the document you add. You can also type your own.",
+          },
+          {
+            q: "Runs feel slow",
+            a: "Reading a document can take 30 seconds to 2 minutes. Keep the page open until the steps finish.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={[
           "Pick the task you want to run.",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
+import { About, AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import { StepList } from "@/components/ops/StepList";
 import { ErrorPanel, toErrorState, type WorkflowErrorState } from "@/components/ops/ErrorPanel";
 import { ResultPanel } from "@/components/ops/ResultRows";
@@ -71,6 +71,28 @@ function EmailTools() {
       title="Property Summary Emailer"
       description="Builds the current property summary and emails it to one recipient."
     >
+      <About
+        what="Builds an overview of the categories and fields currently in Learning Suite and emails it to one address. Nothing is changed — it is read-only."
+        notes={[
+          {
+            q: "Who can I send it to?",
+            a: "Any single valid address. Send it again for a second person.",
+          },
+          {
+            q: "The email did not arrive",
+            a: "Check the spam folder first, then the address. The result panel shows whether sending succeeded.",
+          },
+          {
+            q: "Does it change anything?",
+            a: "No. It only reads the current state and sends a summary.",
+          },
+          {
+            q: "When is it useful?",
+            a: "Right after an upload or a cleanup, to confirm what Learning Suite now contains.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={["Enter the recipient address.", "Send, then check the result."]}
       />

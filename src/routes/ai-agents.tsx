@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { AppShell, Instructions, Panel } from "@/components/ops/AppShell";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { About, AppShell, Instructions, Panel } from "@/components/ops/AppShell";
 import {
   CategoriesField,
   SourceTabs,
@@ -14,7 +15,7 @@ import { ResultPanel } from "@/components/ops/ResultRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { n8nClient } from "@/api/n8nClient";
+import { n8nClient, fetchDocumentCategories } from "@/api/n8nClient";
 import { useSteps } from "@/hooks/useSteps";
 import { ASSISTANT_STEPS, type SourceType, type WorkflowResult } from "@/types/workflow";
 
@@ -54,6 +55,38 @@ function AiAgents() {
   const canSubmit =
     agentName.trim().length > 0 && categories.trim().length > 0 && sourceReady;
 
+  // Wait until typing settles before starting a read that can run for minutes.
+  const [settledDocLink, setSettledDocLink] = useState("");
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettledDocLink(docLink.trim()), 800);
+    return () => window.clearTimeout(timer);
+  }, [docLink]);
+
+  // The document decides which categories exist; read it as soon as it is ready.
+  const documentKey =
+    sourceType === "file"
+      ? file
+        ? `file:${file.name}:${file.size}:${file.lastModified}`
+        : ""
+      : isValidGoogleDocUrl(settledDocLink)
+        ? settledDocLink
+        : "";
+  const documentCategoriesQuery = useQuery({
+    queryKey: ["document-categories", documentKey],
+    enabled: sourceReady && documentKey.length > 0,
+    queryFn: () =>
+      fetchDocumentCategories({
+        sourceType,
+        ...(sourceType === "google_doc"
+          ? { googleDocLink: settledDocLink }
+          : { file: file ?? undefined }),
+      }),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
   const submit = async () => {
     setPhase("running");
     steps.start(ASSISTANT_STEPS, ASSISTANT_STEPS.length - 1);
@@ -88,6 +121,28 @@ function AiAgents() {
       title="Create Assistant"
       description="Builds the AI Agent from a document and configures the Form Assistant."
     >
+      <About
+        what="Reads your document, creates the AI Agent and fills the Form Assistant with the questions it found — matched against the fields that already exist in Learning Suite."
+        notes={[
+          {
+            q: "My document has no categories in it",
+            a: "Nothing breaks. Pick the ones you need from the Learning Suite list, or type your own in the picker.",
+          },
+          {
+            q: "Reading the document is slow",
+            a: "Normal — it usually takes 30 seconds to 2 minutes. The elapsed time is shown while it works.",
+          },
+          {
+            q: "File or Google Doc?",
+            a: "Both work the same. A Google Doc link must start with https://docs.google.com/ and be readable.",
+          },
+          {
+            q: "Does this change existing fields?",
+            a: "It only creates the agent and its Form Assistant. Nothing gets deleted here.",
+          },
+        ]}
+      />
+
       <Instructions
         steps={[
           "Add the document first.",
@@ -129,11 +184,29 @@ function AiAgents() {
               </div>
             )}
 
+            {documentCategoriesQuery.isFetching && (
+              <p
+                className="flex items-center gap-2 text-xs text-muted-foreground"
+                role="status"
+                aria-live="polite"
+              >
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                Reading the document — this usually takes 30 seconds to 2 minutes.
+              </p>
+            )}
+
             <CategoriesField
               value={categories}
               onChange={setCategories}
               disabled={!sourceReady}
               disabledHint="Add the document first — then pick its categories."
+              documentCategories={documentCategoriesQuery.data ?? []}
+              documentLoading={documentCategoriesQuery.isFetching}
+              documentEmpty={
+                documentCategoriesQuery.isFetched &&
+                (documentCategoriesQuery.data ?? []).length === 0
+              }
+              hint="Existing categories come from Learning Suite. Add any extra one you found in the document."
             />
 
             <div>
