@@ -83,6 +83,35 @@ export function Instructions({ steps }: { steps: string[] }) {
   );
 }
 
+/**
+ * Short "what this tab does" block with a few practical answers
+ * for the situations people actually run into.
+ */
+export function About({
+  what,
+  notes,
+}: {
+  what: string;
+  notes: { q: string; a: string }[];
+}) {
+  return (
+    <section className="glass-panel animate-fade-up rounded-2xl p-4">
+      <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+        <Info className="h-4 w-4 text-muted-foreground" aria-hidden /> What this page does
+      </h2>
+      <p className="mt-2 text-sm text-muted-foreground">{what}</p>
+      <dl className="mt-3 grid gap-2.5 sm:grid-cols-2">
+        {notes.map((note) => (
+          <div key={note.q} className="neo-inset rounded-xl p-3">
+            <dt className="text-xs font-semibold">{note.q}</dt>
+            <dd className="mt-1 text-xs text-muted-foreground">{note.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 export function Panel({
   title,
   description,
