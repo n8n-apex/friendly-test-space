@@ -7,6 +7,7 @@ import {
   Bot,
   Mail,
   Sparkles,
+  Info,
 } from "lucide-react";
 
 const nav = [
