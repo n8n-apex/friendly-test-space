@@ -60,9 +60,8 @@ export const forwardCombinedDocument = createServerFn({ method: "POST" })
       const blob = new Blob([binary], { type: file.mimeType || "application/octet-stream" });
       const form = new FormData();
       form.append("Google Doc Link", data["Google Doc Link"] ?? "");
-      // Common binary property names so the workflow finds it either way.
+      // Exactly one binary part so the workflow receives a single file.
       form.append("File", blob, file.name);
-      form.append("data", blob, file.name);
       // Let fetch set the multipart boundary itself.
       return { headers: {} as Record<string, string>, body: form };
     };
